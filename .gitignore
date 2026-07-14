@@ -45,3 +45,4 @@ Thumbs.db
 # Local caches and models
 .cache/
 models/
+graphify-out/cache/

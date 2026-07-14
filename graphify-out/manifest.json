@@ -1,0 +1,207 @@
+{
+  ".codex/hooks.json": {
+    "mtime": 1784064956.2970283,
+    "ast_hash": "005ac71c84af2cae38e255e2b9de2411",
+    "semantic_hash": ""
+  },
+  "pyproject.toml": {
+    "mtime": 1784043247.1819825,
+    "ast_hash": "5d0c93be317bed3086908d02316f510e",
+    "semantic_hash": ""
+  },
+  "src/codescope/__init__.py": {
+    "mtime": 1784043271.4782493,
+    "ast_hash": "83bff0cd4c70af627b1a2d4e1e1a550b",
+    "semantic_hash": ""
+  },
+  "src/codescope/chunker.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/cli.py": {
+    "mtime": 1784043465.2959433,
+    "ast_hash": "c58f78820bfe38279177123aeda0f93f",
+    "semantic_hash": ""
+  },
+  "src/codescope/config.py": {
+    "mtime": 1784063822.5658958,
+    "ast_hash": "f0312f08c26532545a1e8a0f956c0883",
+    "semantic_hash": ""
+  },
+  "src/codescope/embedder.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/engine.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/exceptions.py": {
+    "mtime": 1784062123.994058,
+    "ast_hash": "acdc24d08d2c6095160cbd8e12372a7b",
+    "semantic_hash": ""
+  },
+  "src/codescope/indexer.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/models.py": {
+    "mtime": 1784063848.9495711,
+    "ast_hash": "01480a23f7c59f176b58ee2eb2e8a47d",
+    "semantic_hash": ""
+  },
+  "src/codescope/parser.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/server.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/storage.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/utils/__init__.py": {
+    "mtime": 1784043305.1285965,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/utils/gitignore.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "src/codescope/utils/language.py": {
+    "mtime": 1784062123.994058,
+    "ast_hash": "278076c7db589c55a359cd55afc07679",
+    "semantic_hash": ""
+  },
+  "src/codescope/utils/path_guard.py": {
+    "mtime": 1784063822.564896,
+    "ast_hash": "05656e97d418a40b3bcb92827d444971",
+    "semantic_hash": ""
+  },
+  "src/codescope/utils/timing.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "tests/conftest.py": {
+    "mtime": 1784043312.6166706,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "tests/security/test_path_safety.py": {
+    "mtime": 1784062339.8854947,
+    "ast_hash": "2a7fab5f9087c552ac9feef11f168f66",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_config.py": {
+    "mtime": 1784063822.5658958,
+    "ast_hash": "b9c3078f10adc08d1bdc3b8103457439",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_language.py": {
+    "mtime": 1784062204.8894339,
+    "ast_hash": "305f789c99866070e0c259b9e10a848c",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_models.py": {
+    "mtime": 1784063838.447482,
+    "ast_hash": "6a2212d8d9f7ab1f14074bc4b78c96a4",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_package.py": {
+    "mtime": 1784044074.6441927,
+    "ast_hash": "345497ad9b0428bacffff0aa026f0d62",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/SKILL.md": {
+    "mtime": 1784064659.4228675,
+    "ast_hash": "d9aac0693d3be33f406de660a0333bf1",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/references/add-watch.md": {
+    "mtime": 1782809258.2632577,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/references/exports.md": {
+    "mtime": 1782809258.2633824,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1782809258.2635088,
+    "ast_hash": "bf895ec4d4e40f5f66f7d31c2a9bd4a7",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1782809258.2636366,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/references/hooks.md": {
+    "mtime": 1782809258.2637527,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/references/query.md": {
+    "mtime": 1782809258.2639153,
+    "ast_hash": "9e5aadc2c57ab561bc56600fcfa70735",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/references/transcribe.md": {
+    "mtime": 1782809258.2640445,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": ""
+  },
+  ".codex/skills/graphify/references/update.md": {
+    "mtime": 1782809258.2641892,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1784064659.4247417,
+    "ast_hash": "0ccb6e93fc96445c9ff0dbbb81e4cf5b",
+    "semantic_hash": ""
+  },
+  "BUILD_WEEK_CHANGELOG.md": {
+    "mtime": 1784064031.0324342,
+    "ast_hash": "8f7383739b1dbcd897150616690ed2d4",
+    "semantic_hash": ""
+  },
+  "CODESCOPE_CODEX_BUILD_MASTER.md": {
+    "mtime": 1784059275.4113133,
+    "ast_hash": "05c06f2aa695a16961afd257745ccb59",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1784063495.9520485,
+    "ast_hash": "1779fff4fcd833fd0f0f92085dc736b5",
+    "semantic_hash": ""
+  },
+  "docs/.CHAT_MEMORY.md": {
+    "mtime": 1784064273.274885,
+    "ast_hash": "e2a594bc967d451be54558a0fbb408ca",
+    "semantic_hash": ""
+  },
+  "docs/HACKATHON_COMPLIANCE.md": {
+    "mtime": 1784064031.034434,
+    "ast_hash": "fa9c4d1f07fba6001140720a15ae27fa",
+    "semantic_hash": ""
+  },
+  "docs/design-history/CODESCOPE_SPEC_v2.md": {
+    "mtime": 1784059540.7941039,
+    "ast_hash": "c4947fdbd57bfd1d7cf08f5a29f6aa38",
+    "semantic_hash": ""
+  }
+}
