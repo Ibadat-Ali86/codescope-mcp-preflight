@@ -1,0 +1,40 @@
+[server]
+name = "codescope"
+transport = "stdio"
+
+[index]
+root = "."
+languages = ["python"]
+include_extensions = [".py", ".pyi"]
+exclude = [
+  ".git",
+  ".codescope",
+  ".venv",
+  "venv",
+  "__pycache__",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  "build",
+  "dist",
+  "node_modules"
+]
+max_file_size_kb = 500
+max_chunk_wordpieces = 220
+chunk_overlap_wordpieces = 30
+follow_symlinks = false
+
+[embeddings]
+model = "sentence-transformers/all-MiniLM-L6-v2"
+batch_size = 32
+device = "cpu"
+normalize = true
+
+[storage]
+path = ".codescope"
+collection = "codescope_chunks"
+
+[search]
+default_limit = 5
+maximum_limit = 20
+minimum_query_characters = 2

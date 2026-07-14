@@ -1,0 +1,54 @@
+[project]
+name = "codescope"
+version = "0.1.0"
+description = "Local-first MCP preflight for discovering existing code before generating new implementations."
+readme = "README.md"
+authors = [
+    { name = "Ibadat-Ali86", email = "ibadcodes@gmail.com" }
+]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "chromadb>=1.5.9",
+    "loguru>=0.7.3",
+    "mcp[cli]>=1.27,<2",
+    "pathspec>=1.1.1",
+    "pydantic>=2.13.4",
+    "rich>=15.0.0",
+    "sentence-transformers>=5.6.0",
+    "tree-sitter>=0.26.0",
+    "tree-sitter-python>=0.25.0",
+    "typer>=0.26.8",
+]
+
+[project.scripts]
+codescope = "codescope.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.11.28,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.21",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+files = ["src/codescope"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
