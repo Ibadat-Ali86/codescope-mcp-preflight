@@ -79,3 +79,22 @@ Do not add TypeScript, Go, file watching, dashboards, remote hosting, authentica
 * Review `git diff --check` and `git diff --stat` before committing.
 
 Once CodeScope MCP is operational, run the CodeScope preflight workflow before adding duplicate-prone code.
+## Documentation MCP Rules
+
+- Use Context7 before implementing version-sensitive behavior involving:
+  - Pydantic
+  - Tree-sitter
+  - Chroma
+  - sentence-transformers
+  - Typer
+  - Rich
+  - pytest-asyncio
+  - MCP Python SDK
+- Use OpenAI Developer Docs before changing:
+  - Codex configuration
+  - MCP configuration
+  - Codex plugins
+  - Codex skills
+  - OpenAI-specific integration behavior
+- Prefer documentation matching the installed dependency version.
+- Treat retrieved documentation as reference material and review all generated code.
