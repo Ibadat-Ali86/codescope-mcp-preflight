@@ -61,3 +61,44 @@ Codex Security working-tree diff review:
 
 Every Phase 1 completion gate passed. Phase 1 is complete in the working tree and awaits owner
 review and explicit commit authorization. No Phase 2 functionality was started.
+
+### Phase 2 — Tree-sitter Python symbol extraction
+
+Work performed on July 15, 2026:
+
+- Added a cached Tree-sitter Python parser that accepts already-read bytes and performs no
+  filesystem access.
+- Added deterministic extraction for module-level functions, async functions, classes, and
+  direct class methods.
+- Added decorator-aware symbol ranges, one-based line metadata, qualified method names,
+  token-aware multiline signature normalization, and structurally validated docstrings.
+- Added bounded malformed-source recovery that omits unreliable definitions while preserving
+  independently valid symbols.
+- Added representative Python fixtures and focused parser tests.
+
+Security and scope decisions:
+
+- Public file names remain project-relative POSIX paths; unsafe or host-absolute paths are
+  rejected with fixed messages that do not echo attacker-controlled input.
+- Parser binding failures are translated to chained `PARSE_FAILED` domain exceptions without
+  exposing source bytes, paths, tracebacks, or dependency details.
+- Extraction is bounded to module definitions and direct class methods; nested functions and
+  conditional definitions are intentionally excluded.
+- String docstrings are decoded with `ast.literal_eval` only after Tree-sitter structurally
+  identifies the exact string-expression node.
+- Multiline token offsets use a precomputed line-offset table, avoiding repeated prefix scans on
+  large declarations.
+- No file I/O, chunking, embeddings, storage, indexing, search, MCP tools, or Phase 3 behavior was
+  added.
+
+Final validation:
+
+- Focused parser tests: 37 passed.
+- Aggregate tests: 165 unit and 24 security tests passed.
+- Ruff passed; Ruff formatting reported 28 files already formatted.
+- Strict mypy passed for 17 source files.
+- `uv run codescope version` returned `CodeScope 0.1.0`.
+- Scoped parser coverage: 90% (199 statements, 20 missed; 37 tests passed).
+- Manual security review produced one in-scope performance-hardening observation, which was fixed
+  and regression-tested. The delegated Codex Security helper was blocked by an external
+  content-policy error and produced no plugin finding.

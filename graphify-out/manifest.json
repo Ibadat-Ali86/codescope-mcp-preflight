@@ -55,8 +55,8 @@
     "semantic_hash": ""
   },
   "src/codescope/parser.py": {
-    "mtime": 1784043312.6166706,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "mtime": 1784136271.9232662,
+    "ast_hash": "115b21a9e2367c7a4b6c32a323b0dcda",
     "semantic_hash": ""
   },
   "src/codescope/server.py": {
@@ -175,8 +175,8 @@
     "semantic_hash": ""
   },
   "BUILD_WEEK_CHANGELOG.md": {
-    "mtime": 1784064031.0324342,
-    "ast_hash": "8f7383739b1dbcd897150616690ed2d4",
+    "mtime": 1784136483.1049578,
+    "ast_hash": "d7f7294d54fa1b6164b605eb2d9556f8",
     "semantic_hash": ""
   },
   "CODESCOPE_CODEX_BUILD_MASTER.md": {
@@ -185,23 +185,48 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1784063495.9520485,
-    "ast_hash": "1779fff4fcd833fd0f0f92085dc736b5",
+    "mtime": 1784136483.1039577,
+    "ast_hash": "ce23fdb513ed38d086eeba1461a814d2",
     "semantic_hash": ""
   },
   "docs/.CHAT_MEMORY.md": {
-    "mtime": 1784064273.274885,
-    "ast_hash": "e2a594bc967d451be54558a0fbb408ca",
+    "mtime": 1784136483.1059577,
+    "ast_hash": "1a760421669da6a583646d5eff898682",
     "semantic_hash": ""
   },
   "docs/HACKATHON_COMPLIANCE.md": {
-    "mtime": 1784064031.034434,
-    "ast_hash": "fa9c4d1f07fba6001140720a15ae27fa",
+    "mtime": 1784136483.1059577,
+    "ast_hash": "1066ef32b2e1c49b3134f75632409491",
     "semantic_hash": ""
   },
   "docs/design-history/CODESCOPE_SPEC_v2.md": {
     "mtime": 1784059540.7941039,
     "ast_hash": "c4947fdbd57bfd1d7cf08f5a29f6aa38",
+    "semantic_hash": ""
+  },
+  "tests/fixtures/sample_python/auth.py": {
+    "mtime": 1784133697.4589741,
+    "ast_hash": "b228d265e77aac8408d30d9a009c667c",
+    "semantic_hash": ""
+  },
+  "tests/fixtures/sample_python/malformed.py": {
+    "mtime": 1784134169.4088607,
+    "ast_hash": "80e3c3e1b26f46e699aba89ce7cdb99d",
+    "semantic_hash": ""
+  },
+  "tests/fixtures/sample_python/services.py": {
+    "mtime": 1784134154.4301116,
+    "ast_hash": "c8ca5e537aa2b8250acda620098c5a2f",
+    "semantic_hash": ""
+  },
+  "tests/fixtures/sample_python/validators.py": {
+    "mtime": 1784134144.716277,
+    "ast_hash": "477f8b59792816f9ba2e3b1980980e52",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_parser.py": {
+    "mtime": 1784136067.1949148,
+    "ast_hash": "15f11342ecd3efe8c23aaa197334fcc1",
     "semantic_hash": ""
   }
 }

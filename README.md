@@ -4,16 +4,21 @@ CodeScope is a local-first MCP preflight system for developer tools. Its intende
 
 ## Current implementation status
 
-OpenAI Build Week Phase 1 is in progress. The repository currently provides:
+OpenAI Build Week Phase 2 is complete. The repository currently provides:
 
 - a Python 3.12 package and version command;
 - immutable, validated TOML configuration;
 - immutable public data models and stable domain error codes;
 - Python-only language and extension validation;
 - centralized repository-file and future reset-target path guards;
-- focused unit and path-security tests.
+- Tree-sitter Python symbol extraction for module functions, async functions, classes, and
+  direct methods;
+- focused unit and path-security tests, including malformed-source recovery coverage.
 
-The functional indexing and MCP preflight workflow are not implemented yet. In particular, this phase does not parse source code, create chunks or embeddings, persist an index, search code, expose MCP tools, or delete runtime data.
+The functional indexing and MCP preflight workflow are not implemented yet. Parsing accepts
+already-read bytes and returns immutable symbol metadata, but this phase does not read repository
+files, create chunks or embeddings, persist an index, search code, expose MCP tools, or delete
+runtime data.
 
 ## Requirements
 
@@ -21,7 +26,7 @@ The functional indexing and MCP preflight workflow are not implemented yet. In p
 - [uv](https://docs.astral.sh/uv/)
 - A platform supported by the locked Python dependencies
 
-Phase 1 has been validated in the current Linux development environment. Broader supported-platform claims and clean-clone verification are deferred until the functional MVP exists.
+Phases 1 and 2 have been validated in the current Linux development environment. Broader supported-platform claims and clean-clone verification are deferred until the functional MVP exists.
 
 ## Setup
 
@@ -60,12 +65,12 @@ Phase-specific commands and observed results are recorded in [`BUILD_WEEK_CHANGE
 
 ## Sample data
 
-No sample repository or indexed sample data is included yet because repository indexing is outside Phase 1. A safe, documented sample path will be added before submission and will not require judges to inspect unrelated host files.
+Parser fixtures under `tests/fixtures/sample_python/` cover representative Python syntax, but no indexed sample repository or judge-ready sample data exists yet. A safe, documented sample path will be added before submission and will not require judges to inspect unrelated host files.
 
 ## Current limitations
 
 - Python repositories only; supported source extensions are `.py` and `.pyi`.
-- No Tree-sitter parsing, symbol extraction, chunking, embedding, Chroma persistence, repository indexing, or search.
+- No chunking, embedding, Chroma persistence, repository indexing, or search.
 - No MCP tools or MCP server workflow are operational yet.
 - No dashboard, remote hosting, authentication, deployment, or file watching.
 - Path validation reduces traversal and symlink risk, but filesystem state can change after validation; future read and deletion operations must validate immediately before use.
@@ -73,11 +78,11 @@ No sample repository or indexed sample data is included yet because repository i
 
 ## Built During OpenAI Build Week
 
-The repository distinguishes pre-existing planning from Build Week implementation through dated Git history and [`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md). Work completed through Phase 1 comprises the package foundation plus validated configuration, public models, domain exceptions, Python language validation, path-security guards, and their focused tests. Later MVP functionality remains unimplemented and must not be inferred from planning documents.
+The repository distinguishes pre-existing planning from Build Week implementation through dated Git history and [`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md). Work completed through Phase 2 comprises the package foundation, validated configuration, public models, domain exceptions, Python language validation, path-security guards, Tree-sitter Python symbol extraction, and focused tests. Later MVP functionality remains unimplemented and must not be inferred from planning documents.
 
 ## How Codex and GPT-5.6 Were Used
 
-Codex with GPT-5.6 was used in the primary implementation thread to inspect the Build Master and repository constraints, consult version-matched documentation, implement the current Phase 1 modules and tests, run validation, and review the working-tree security diff. The owner supplied and approved the product positioning, phase boundaries, architecture, security policies, evidence rules, and implementation contract.
+Codex with GPT-5.6 was used in the primary implementation thread to inspect the Build Master and repository constraints, consult version-matched Tree-sitter documentation, implement the Phase 1 foundation and Phase 2 parser/tests, run validation, and review the working-tree security diff. The owner supplied and approved the product positioning, phase boundaries, architecture, security policies, evidence rules, and implementation contract.
 
 This section records only completed work. The final acceleration narrative, demo claims, contribution summary, and `/feedback` Session ID remain pending until most core functionality is built. The Session ID will be obtained by the user running `/feedback` in the primary implementation thread; no value is invented here.
 

@@ -1,16 +1,16 @@
 # Graph Report - codescope-mcp-preflight  (2026-07-15)
 
 ## Corpus Check
-- 41 files · ~38,193 words
+- 46 files · ~41,219 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 660 nodes · 896 edges · 72 communities (68 shown, 4 thin omitted)
-- Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 80 edges (avg confidence: 0.75)
+- 749 nodes · 1054 edges · 83 communities (79 shown, 4 thin omitted)
+- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 104 edges (avg confidence: 0.75)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6b32222c`
+- Built from commit: `7e283cd5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -75,18 +75,30 @@
 - [[_COMMUNITY_Community 57|Community 57]]
 - [[_COMMUNITY_Community 58|Community 58]]
 - [[_COMMUNITY_Community 59|Community 59]]
+- [[_COMMUNITY_Community 65|Community 65]]
+- [[_COMMUNITY_Community 72|Community 72]]
+- [[_COMMUNITY_Community 73|Community 73]]
+- [[_COMMUNITY_Community 74|Community 74]]
+- [[_COMMUNITY_Community 75|Community 75]]
+- [[_COMMUNITY_Community 76|Community 76]]
+- [[_COMMUNITY_Community 77|Community 77]]
+- [[_COMMUNITY_Community 78|Community 78]]
+- [[_COMMUNITY_Community 79|Community 79]]
+- [[_COMMUNITY_Community 80|Community 80]]
+- [[_COMMUNITY_Community 81|Community 81]]
+- [[_COMMUNITY_Community 82|Community 82]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `load_config()` - 27 edges
-2. `CodeScopeError` - 20 edges
-3. `_write_config()` - 20 edges
-4. `safe_resolve()` - 19 edges
-5. `CodeScope — Complete Technical Specification v2.0` - 19 edges
-6. `IndexStatus` - 16 edges
-7. `validate_reset_target()` - 15 edges
-8. `20. Implementation Phases and Gates` - 13 edges
-9. `_raise_invalid_path()` - 12 edges
-10. `What You Must Do When Invoked` - 12 edges
+2. `CodeParser` - 27 edges
+3. `CodeScopeError` - 20 edges
+4. `_write_config()` - 20 edges
+5. `safe_resolve()` - 19 edges
+6. `CodeScope — Complete Technical Specification v2.0` - 19 edges
+7. `IndexStatus` - 16 edges
+8. `validate_reset_target()` - 15 edges
+9. `20. Implementation Phases and Gates` - 13 edges
+10. `Symbol` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `test_code_chunk_negative_index_is_rejected()` --calls--> `CodeChunk`  [INFERRED]
@@ -95,19 +107,19 @@
   tests/unit/test_models.py → src/codescope/models.py
 - `test_error_response_false_error_flag_is_rejected()` --calls--> `ErrorResponse`  [INFERRED]
   tests/unit/test_models.py → src/codescope/models.py
-- `test_normalize_language_invalid_values_raise_stable_error()` --calls--> `normalize_language()`  [INFERRED]
-  tests/unit/test_language.py → src/codescope/utils/language.py
-- `test_normalize_language_supported_spellings_return_python()` --calls--> `normalize_language()`  [INFERRED]
-  tests/unit/test_language.py → src/codescope/utils/language.py
+- `test_parser_binding_failure_does_not_leak_source_or_path()` --calls--> `CodeParser`  [INFERRED]
+  tests/unit/test_parser.py → src/codescope/parser.py
+- `test_parser_decorated_ranges_include_decorators_without_duplicate_symbols()` --calls--> `CodeParser`  [INFERRED]
+  tests/unit/test_parser.py → src/codescope/parser.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (72 total, 4 thin omitted)
+## Communities (83 total, 4 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.05
-Nodes (35): BaseModel, CodeChunk, ErrorResponse, _LineRangeModel, _PublicModel, Self, Immutable public data models for CodeScope., Require a project-relative POSIX file path. (+27 more)
+Cohesion: 0.15
+Nodes (8): Require a project-relative POSIX file path., A result from exact or partial symbol lookup., Require a project-relative POSIX file path., Reject empty required symbol-result text., Prevent absolute host paths in public index status., Require a project-relative POSIX file path., SymbolResult, _validate_public_path()
 
 ### Community 1 - "Community 1"
 Cohesion: 0.04
@@ -118,24 +130,24 @@ Cohesion: 0.11
 Nodes (46): NoReturn, OSError, RuntimeError, _candidate_beneath_root(), _is_relative_to(), Path, _raise_invalid_path(), Central security-sensitive filesystem path validation. (+38 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.10
-Nodes (33): ErrorCode, Machine-readable error codes exposed by CodeScope., IndexStatus, Serializable status of the local CodeScope index., Defensively copy and freeze language counts., Serialize immutable language counts as a normal JSON object., StrEnum, _chunk_data() (+25 more)
+Cohesion: 0.23
+Nodes (15): _chunk_data(), Any, Tests for immutable public CodeScope models., _search_data(), _symbol_data(), _symbol_result_data(), test_code_chunk_negative_index_is_rejected(), test_public_model_assignment_is_frozen() (+7 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.24
-Nodes (27): MonkeyPatch, load_config(), Load and validate a CodeScope TOML configuration file.      Args:         config, Path, Tests for immutable validated application configuration., _replace(), test_app_config_is_frozen_and_collections_are_tuples(), test_load_config_absent_storage_path_is_accepted() (+19 more)
+Nodes (27): load_config(), Load and validate a CodeScope TOML configuration file.      Args:         config, MonkeyPatch, Path, Tests for immutable validated application configuration., _replace(), test_app_config_is_frozen_and_collections_are_tuples(), test_load_config_absent_storage_path_is_accepted() (+19 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.13
-Nodes (19): Exception, CodeScopeError, IndexNotFoundError, InvalidLimitError, InvalidPathError, InvalidQueryError, ParseFailedError, QueryFailedError (+11 more)
+Cohesion: 0.14
+Nodes (17): Exception, CodeScopeError, IndexNotFoundError, InvalidLimitError, InvalidPathError, InvalidQueryError, QueryFailedError, Stable domain exceptions for CodeScope. (+9 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.10
-Nodes (17): Build Week implementation, CodeScope Build Week Changelog, Phase 0 — Repository foundation, Phase 1 — Configuration, models, and path security, Pre-existing work, CodeScope Hackathon Compliance, Built During OpenAI Build Week, CodeScope (+9 more)
+Nodes (18): Build Week implementation, CodeScope Build Week Changelog, Phase 0 — Repository foundation, Phase 1 — Configuration, models, and path security, Phase 2 — Tree-sitter Python symbol extraction, Pre-existing work, CodeScope Hackathon Compliance, Built During OpenAI Build Week (+10 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.12
@@ -186,8 +198,8 @@ Cohesion: 0.27
 Nodes (8): _immutable_string_tuple(), IndexConfig, Any, SupportedLanguage, Repository indexing boundaries and chunking limits., Normalize the immutable Python-only language allowlist., Validate canonical immutable source extensions., Validate and freeze exclusion entries.
 
 ### Community 20 - "Community 20"
-Cohesion: 0.20
-Nodes (9): Blockers, Changed files, CodeScope Session Memory, Exact final validation, Important decisions, Next atomic phase, Phase 1 completed work, Phase status (+1 more)
+Cohesion: 0.15
+Nodes (12): Blockers, Changed files, CodeScope Session Memory, Exact final validation, Important decisions, Next atomic phase, Phase 1 completed work, Phase 2 changed files (+4 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.20
@@ -329,8 +341,56 @@ Nodes (3): Tests for the CodeScope package foundation., The package should expos
 Cohesion: 0.67
 Nodes (3): 11. Security Requirements, Context7 Security Note, Path Traversal Prevention — Concrete Implementation
 
+### Community 65 - "Community 65"
+Cohesion: 0.07
+Nodes (53): Node, Parser, ParseFailedError, Raised when source parsing cannot complete safely., A named Python source-code entity., Reject an empty docstring when one is supplied., Symbol, _build_python_parser() (+45 more)
+
+### Community 72 - "Community 72"
+Cohesion: 0.20
+Nodes (13): IndexStatus, Serializable status of the local CodeScope index., Defensively copy and freeze language counts., Serialize immutable language counts as a normal JSON object., _status_data(), test_index_status_languages_blocks_backing_attribute_reassignment(), test_index_status_languages_blocks_item_assignment(), test_index_status_languages_defensively_copies_input() (+5 more)
+
+### Community 73 - "Community 73"
+Cohesion: 0.18
+Nodes (8): BaseService, outer(), Service parser fixture., Return the display label., Load one service instance., Return a value without exposing the nested helper as a symbol., Coordinate user operations., UserService
+
+### Community 74 - "Community 74"
+Cohesion: 0.24
+Nodes (8): BaseModel, ErrorResponse, _LineRangeModel, _PublicModel, Self, Immutable public data models for CodeScope., Stable public error response returned by future MCP tools., test_error_response_false_error_flag_is_rejected()
+
+### Community 75 - "Community 75"
+Cohesion: 0.20
+Nodes (7): authenticate(), AuthService, Authentication parser fixture., Provide authentication operations., Store the expected issuer., Validate a token against the configured issuer., Validate an authentication token asynchronously.
+
+### Community 76 - "Community 76"
+Cohesion: 0.29
+Nodes (4): Reject empty optional names when supplied., Reject an empty docstring when one is supplied., Reject an empty timestamp when one is supplied., _validate_optional_text()
+
+### Community 77 - "Community 77"
+Cohesion: 0.29
+Nodes (4): Reject an empty embedding model identifier., Reject empty public error-response fields., Reject empty required symbol text., _validate_required_text()
+
+### Community 78 - "Community 78"
+Cohesion: 0.33
+Nodes (4): CodeChunk, Require a project-relative POSIX file path., Reject empty required chunk text., A traceable Python source chunk prepared for future indexing.
+
+### Community 79 - "Community 79"
+Cohesion: 0.33
+Nodes (4): A ranked source-code search result., Reject empty required search-result text., Reject empty optional names when supplied., SearchResult
+
+### Community 80 - "Community 80"
+Cohesion: 0.33
+Nodes (5): Validation parser fixture., Validate a username length., Return whether an email has a simple local and domain shape., validate_email(), validate_username()
+
+### Community 81 - "Community 81"
+Cohesion: 0.40
+Nodes (5): ErrorCode, Machine-readable error codes exposed by CodeScope., StrEnum, Exception, test_domain_exception_type_has_stable_error_code()
+
+### Community 82 - "Community 82"
+Cohesion: 0.50
+Nodes (3): Malformed-source parser fixture stored as inert sample data., Remain extractable as a normal control symbol., recovered()
+
 ## Knowledge Gaps
-- **304 isolated node(s):** `codescope`, `Usage`, `What graphify is for`, `Step 0 - GitHub repos and multi-path merge (only if a URL or several paths)`, `Step 1 - Ensure graphify is installed` (+299 more)
+- **308 isolated node(s):** `codescope`, `Usage`, `What graphify is for`, `Step 0 - GitHub repos and multi-path merge (only if a URL or several paths)`, `Step 1 - Ensure graphify is installed` (+303 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -338,16 +398,16 @@ Nodes (3): 11. Security Requirements, Context7 Security Note, Path Traversal Pre
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `20. Implementation Phases and Gates` connect `Community 1` to `Community 13`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **Why does `CodeScopeError` connect `Community 6` to `Community 9`, `Community 10`, `Community 19`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
-- **Why does `5. Architecture` connect `Community 8` to `Community 13`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `CodeScopeError` connect `Community 6` to `Community 65`, `Community 9`, `Community 10`, `Community 19`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `IndexStatus` connect `Community 72` to `Community 0`, `Community 74`, `Community 76`, `Community 77`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **Are the 22 inferred relationships involving `load_config()` (e.g. with `InvalidConfigError` and `validate_config_file()`) actually correct?**
   _`load_config()` has 22 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 20 inferred relationships involving `CodeParser` (e.g. with `ParseFailedError` and `Symbol`) actually correct?**
+  _`CodeParser` has 20 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 7 inferred relationships involving `CodeScopeError` (e.g. with `AppConfig` and `EmbeddingsConfig`) actually correct?**
   _`CodeScopeError` has 7 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `codescope`, `CodeScope command-line interface.`, `Run the CodeScope command-line interface.` to the rest of the system?**
-  _378 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.05224963715529753 - nodes in this community are weakly interconnected._
+  _403 weakly-connected nodes found - possible documentation gaps or missing edges._
