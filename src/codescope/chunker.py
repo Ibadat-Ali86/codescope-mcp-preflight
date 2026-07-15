@@ -8,7 +8,7 @@ from bisect import bisect_left, bisect_right
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath, PureWindowsPath
-from typing import Final, Protocol
+from typing import Final, Protocol, runtime_checkable
 
 from codescope.models import CodeChunk, Symbol
 from codescope.utils.language import SupportedLanguage, normalize_language
@@ -37,6 +37,14 @@ class WordpieceTokenizer(Protocol):
 
     def wordpiece_offsets(self, text: str) -> Sequence[TokenOffset]:
         """Return one original-character offset pair per model wordpiece."""
+
+
+@runtime_checkable
+class PrefixCachingWordpieceTokenizer(Protocol):
+    """Optional exact counter that reuses immutable embedding context."""
+
+    def count_prefixed_wordpieces(self, prefix: str, text: str) -> int:
+        """Count ``prefix + text`` while safely reusing the prefix work."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -104,9 +112,8 @@ def _validate_public_file(file: str) -> None:
         raise ValueError(_INPUT_ERROR)
 
 
-def _format_embedding_fields(
+def _embedding_prefix(
     *,
-    text: str,
     file: str,
     language: SupportedLanguage,
     qualified_name: str | None,
@@ -120,7 +127,26 @@ def _format_embedding_fields(
         if signature is None or not signature.strip():
             raise ValueError(_INPUT_ERROR)
         fields.extend((f"symbol: {qualified_name}", f"signature: {signature}"))
-    return "\n".join(fields) + "\n\n" + text
+    return "\n".join(fields) + "\n\n"
+
+
+def _format_embedding_fields(
+    *,
+    text: str,
+    file: str,
+    language: SupportedLanguage,
+    qualified_name: str | None,
+    signature: str | None,
+) -> str:
+    return (
+        _embedding_prefix(
+            file=file,
+            language=language,
+            qualified_name=qualified_name,
+            signature=signature,
+        )
+        + text
+    )
 
 
 def format_embedding_text(chunk: CodeChunk, *, signature: str | None) -> str:
@@ -499,7 +525,12 @@ class CodeChunker:
                 chunk_index=first_index + len(chunks),
             )
             if (
-                self._count_wordpieces(format_embedding_text(chunk, signature=region.signature))
+                self._formatted_count(
+                    text=chunk.text,
+                    file=file,
+                    language=language,
+                    region=region,
+                )
                 > self._max_wordpieces
             ):
                 raise ValueError(_BUDGET_ERROR)
@@ -673,20 +704,29 @@ class CodeChunker:
         language: SupportedLanguage,
         region: _Region,
     ) -> int:
-        formatted = _format_embedding_fields(
-            text=text,
+        prefix = _embedding_prefix(
             file=file,
             language=language,
             qualified_name=region.qualified_name,
             signature=region.signature,
         )
-        return self._count_wordpieces(formatted)
+        if isinstance(self._tokenizer, PrefixCachingWordpieceTokenizer):
+            try:
+                count = self._tokenizer.count_prefixed_wordpieces(prefix, text)
+            except (LookupError, RuntimeError, TypeError, ValueError) as error:
+                raise ValueError(_TOKENIZER_ERROR) from error
+            return self._validate_wordpiece_count(count)
+        return self._count_wordpieces(prefix + text)
 
     def _count_wordpieces(self, text: str) -> int:
         try:
             count = self._tokenizer.count_wordpieces(text)
         except (LookupError, RuntimeError, TypeError, ValueError) as error:
             raise ValueError(_TOKENIZER_ERROR) from error
+        return self._validate_wordpiece_count(count)
+
+    @staticmethod
+    def _validate_wordpiece_count(count: object) -> int:
         if not isinstance(count, int) or isinstance(count, bool) or count < 0:
             raise ValueError(_TOKENIZER_ERROR)
         return count

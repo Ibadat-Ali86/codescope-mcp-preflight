@@ -182,3 +182,122 @@ Final validation:
 
 Every Phase 3 implementation and quality gate passed. Phase 3 is complete and its final clean audit
 received owner commit authorization. No Phase 4 functionality was started.
+
+### Phase 4 — Local embeddings and persistent vector storage
+
+Work performed on July 15–16, 2026, from starting commit `3dc46f2`:
+
+- Added a lazy `LocalEmbedder` with injected model construction, process-local lifecycle reuse,
+  cache-only normal loading, explicit preparation-time download permission, configured device and
+  batch handling, finite two-dimensional `float32` output validation, and normalization checks.
+- Added one model-managed fast-tokenizer adapter with special tokens disabled, validated
+  original-character offsets, the verified model input limit, and bounded exact prefix-count reuse.
+- Integrated the prefix-count seam into Phase 3 chunk budgeting without changing source text,
+  chunk ownership, hashes, IDs, or the dependency-injected tokenizer fallback.
+- Added telemetry-disabled persistent local Chroma storage with explicit cosine configuration,
+  caller-provided embeddings, scalar project-relative metadata, embedding-free query responses,
+  deterministic validation, exact-file deletion, and collection-only reset behavior.
+- Added atomic UTF-8 JSON persistence for fixed `symbols.json` and `index_meta.json` names using a
+  same-directory temporary file, file and directory synchronization, and atomic replacement.
+- Added central runtime-directory validation and applied it to direct `StorageConfig` construction
+  after reproducing ancestor-symlink acceptance and link-evidence loss in the prior validator.
+- Added focused embedder, storage, integration, configuration-regression, and Phase 4 security
+  tests. No repository scanner, indexer, query engine, MCP tool, or CLI expansion was added.
+
+Model and dependency verification:
+
+- Inspected installed `sentence-transformers` 5.6.0, `transformers` 5.13.1, `tokenizers` 0.22.2,
+  `huggingface-hub` 1.23.0, `chromadb` 1.5.9, `numpy` 2.5.1, and `torch` 2.13.0 APIs locally and
+  consulted Context7 for the version-sensitive Sentence Transformers, Hugging Face tokenizer, and
+  Chroma contracts.
+- Ran the explicitly authorized real-model path once with download permission and a cache outside
+  the repository: one integration test passed in 25.11 seconds.
+- Re-ran the same integration test in a fresh process with download permission disabled plus
+  `HF_HUB_OFFLINE=1` and `TRANSFORMERS_OFFLINE=1`: one test passed in 6.60 seconds.
+- Verified the default model produces `(2, 384)` `float32` unit-normalized vectors, reports a
+  256-wordpiece input limit, supplies fast Unicode character offsets, and keeps formatted Phase 3
+  chunks within the configured 220-wordpiece budget.
+
+Changed implementation and test files:
+
+- `src/codescope/embedder.py`
+- `src/codescope/storage.py`
+- `src/codescope/utils/json_io.py`
+- `src/codescope/chunker.py`
+- `src/codescope/utils/path_guard.py`
+- `src/codescope/config.py`
+- `tests/unit/test_embedder.py`
+- `tests/unit/test_storage.py`
+- `tests/unit/test_config.py`
+- `tests/security/test_phase4_safety.py`
+- `tests/integration/test_embedder_real_model.py`
+- `README.md`
+- `BUILD_WEEK_CHANGELOG.md`
+- `docs/.CHAT_MEMORY.md`
+- `docs/HACKATHON_COMPLIANCE.md`
+
+Observed validation before the final evidence-only pass:
+
+- `uv run pytest tests/unit/test_embedder.py -q` — 30 passed.
+- `uv run pytest tests/unit/test_storage.py -q` — 43 passed with 36 installed-Chroma
+  deprecation warnings.
+- Combined focused verbose suite — 73 passed with 36 installed-Chroma deprecation warnings.
+- `uv run pytest tests/unit -q` — 310 passed with 36 installed-Chroma deprecation warnings.
+- Forced-offline `uv run pytest tests/integration -q` — 1 passed.
+- `uv run pytest tests/security -q` — 34 passed with 5 installed-Chroma deprecation warnings.
+- Ruff passed; Ruff formatting reported 34 files already formatted.
+- Strict mypy passed for 18 source files.
+- `uv run codescope version` returned `CodeScope 0.1.0`.
+- Scoped embedder/storage coverage measured 90% (505 statements, 53 missed; 73 tests passed).
+
+Security and scope decisions:
+
+- Cache-only operation is the default; network/model download permission must be explicit.
+- CPU operation does not inspect CUDA. Explicit CUDA configuration fails safely before model
+  construction when CUDA is unavailable.
+- Expected storage messages do not include source documents, vectors, JSON contents, or absolute
+  runtime paths; lower-level exceptions are retained only through chaining as required by the
+  Phase 4 contract.
+- Runtime and metadata paths reject link components and special filesystem objects. Reset deletes
+  only the configured Chroma collection and optionally the two fixed metadata files; it never
+  recursively removes the runtime directory.
+- The Codex Security configuration preflight returned `ready`. Six changed production files were
+  reviewed in full. Discovery produced two plausible candidates; neither survived validation and
+  attack-path analysis as a reportable issue.
+- Chained storage causes were rejected because Phase 4 has no CLI/MCP/logger traceback sink, public
+  messages remain fixed, and the contract explicitly requires original exceptions through chaining.
+- Complete-file metadata parsing without a pre-parse byte limit was rejected as a current security
+  issue because no Phase 4 product caller or lower-privileged runtime writer exists. Metadata sizing
+  remains a Phase 5 hardening consideration when the complete indexing/read lifecycle is defined.
+- The delegated metadata validation helper was blocked once by its content-policy gate. It was not
+  retried; parent static validation and attack-path analysis completed the candidate ledger.
+- The finalized Codex Security report contains zero reportable findings and no unresolved validated
+  high- or critical-severity issue.
+- Dependency and lockfile diffs, Phase 5 module diffs, and Graphify diffs were empty. Graphify was
+  not run or regenerated, and Phase 5 was not started.
+
+Final Phase 4 validation after evidence updates:
+
+- `uv run pytest tests/unit/test_embedder.py -q` — 30 passed in 0.32 seconds.
+- `uv run pytest tests/unit/test_storage.py -q` — 43 passed with 36 installed-Chroma
+  deprecation warnings in 3.59 seconds.
+- `uv run pytest tests/unit/test_embedder.py tests/unit/test_storage.py -v` — 73 passed with 36
+  warnings in 3.69 seconds.
+- Scoped embedder/storage coverage — 90% (505 statements, 53 missed; 73 tests passed in 5.15
+  seconds).
+- `uv run pytest tests/unit -q` — 310 passed with 36 warnings in 4.11 seconds.
+- Ordinary `uv run pytest tests/integration -q` — one explicit real-model test skipped because the
+  opt-in environment flag was absent.
+- Fresh-process forced-offline integration — 1 passed in 6.54 seconds.
+- `uv run pytest tests/security -q` — 34 passed with 5 warnings in 1.31 seconds.
+- `uv run ruff check .` — passed.
+- `uv run ruff format --check .` — passed; 34 files already formatted.
+- `uv run mypy src/codescope` — passed; 18 source files checked.
+- `uv run codescope version` — `CodeScope 0.1.0`.
+- `git diff --check` — passed with no output.
+- Generated test/coverage artifacts were removed; the final artifact scan returned no repository
+  model cache, `.codescope`, Chroma database, temporary JSON, coverage output, NumPy dump, or
+  `__pycache__` outside the existing ignored environment.
+
+Every Phase 4 implementation, regression, quality, security, and scope gate passed. Phase 4 owner
+review and commit authorization were received; this Phase 4 commit records the validated result.

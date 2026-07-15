@@ -124,6 +124,45 @@ def validate_config_file(path: Path) -> Path:
     return resolved
 
 
+def validate_runtime_directory(path: Path, *, create: bool = False) -> Path:
+    """Validate a local runtime directory without following link components.
+
+    Existing components are inspected before and after optional creation. This
+    minimizes, but cannot eliminate, the validation-to-use race inherent in
+    portable path APIs. Callers must use the result immediately.
+
+    Args:
+        path: Exact configured runtime directory.
+        create: Whether to create missing directory components.
+
+    Returns:
+        The resolved runtime directory, which may be absent when ``create`` is false.
+
+    Raises:
+        InvalidPathError: If the path is unsafe, inaccessible, or not a directory.
+    """
+    try:
+        candidate = path if path.is_absolute() else Path.cwd() / path
+    except OSError as error:
+        _raise_invalid_path("The runtime path could not be inspected safely.", error)
+    if not candidate.is_absolute() or not candidate.anchor:
+        _raise_invalid_path("The runtime path could not be resolved safely.")
+
+    anchor = Path(candidate.anchor)
+    _reject_symlink_components(candidate, anchor)
+    try:
+        if create:
+            candidate.mkdir(parents=True, exist_ok=True)
+        resolved = candidate.resolve(strict=create)
+    except (OSError, RuntimeError) as error:
+        _raise_invalid_path("The runtime directory is inaccessible.", error)
+
+    _reject_symlink_components(candidate, anchor)
+    if resolved.exists():
+        _require_mode(resolved, stat.S_ISDIR, "The runtime path must be a directory.")
+    return resolved
+
+
 def safe_resolve(path: Path, root: Path, *, follow_symlinks: bool = False) -> Path:
     """Resolve a candidate file and prove that it remains inside root.
 

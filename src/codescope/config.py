@@ -10,7 +10,11 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 from codescope.exceptions import CodeScopeError, InvalidConfigError
 from codescope.utils.language import SupportedLanguage, language_from_extension, normalize_language
-from codescope.utils.path_guard import validate_config_file, validate_repository_root
+from codescope.utils.path_guard import (
+    validate_config_file,
+    validate_repository_root,
+    validate_runtime_directory,
+)
 
 NonEmptyString = Annotated[str, Field(min_length=1)]
 PositiveInt = Annotated[int, Field(gt=0)]
@@ -130,14 +134,11 @@ class StorageConfig(_FrozenConfigModel):
     @field_validator("path")
     @classmethod
     def validate_path(cls, value: Path) -> Path:
-        """Resolve a storage path and reject existing non-directories."""
+        """Resolve a storage path without accepting link components."""
         try:
-            resolved = value.resolve(strict=False)
-        except (OSError, RuntimeError) as error:
-            raise ValueError("storage.path could not be resolved") from error
-        if resolved.exists() and not resolved.is_dir():
-            raise ValueError("storage.path must be a directory when it exists")
-        return resolved
+            return validate_runtime_directory(value)
+        except CodeScopeError as error:
+            raise ValueError("storage.path is unsafe or invalid") from error
 
     @field_validator("collection")
     @classmethod

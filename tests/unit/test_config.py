@@ -306,6 +306,24 @@ def test_load_config_existing_storage_file_is_rejected(tmp_path: Path) -> None:
         load_config(config_path)
 
 
+def test_load_config_symlinked_storage_directory_is_rejected(tmp_path: Path) -> None:
+    # Arrange
+    external = tmp_path / "external-runtime"
+    external.mkdir()
+    runtime_link = tmp_path / "runtime-link"
+    try:
+        runtime_link.symlink_to(external, target_is_directory=True)
+    except (NotImplementedError, OSError) as error:
+        pytest.skip(f"symlink creation unavailable on this operating system: {error}")
+    content = _replace(VALID_CONFIG, 'path = ".codescope"', 'path = "runtime-link"')
+    config_path = _write_config(tmp_path, content)
+
+    # Act and Assert
+    with pytest.raises(InvalidConfigError) as error_info:
+        load_config(config_path)
+    assert str(tmp_path) not in str(error_info.value)
+
+
 def test_app_config_is_frozen_and_collections_are_tuples(tmp_path: Path) -> None:
     # Arrange
     config = load_config(_write_config(tmp_path))
