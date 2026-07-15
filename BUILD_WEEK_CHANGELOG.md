@@ -102,3 +102,83 @@ Final validation:
 - Manual security review produced one in-scope performance-hardening observation, which was fixed
   and regression-tested. The delegated Codex Security helper was blocked by an external
   content-policy error and produced no plugin finding.
+
+### Phase 3 — Symbol-aware, model-budgeted code chunking
+
+Work performed on July 15, 2026, from starting commit `c16e5b9`:
+
+- Added a typed, dependency-injected wordpiece tokenizer protocol; Phase 3 loads neither tokenizer
+  assets nor embedding-model weights.
+- Added deterministic symbol-first source chunking for top-level functions, async functions,
+  classes, and direct methods.
+- Added interval-based class/method ownership so class declaration, docstring, and class-level gaps
+  retain class context without duplicating complete method bodies.
+- Added module fallback chunks for meaningful source outside parser-owned symbol ranges.
+- Added complete embedding-context budgeting, line-preferred oversized splitting, tokenizer-offset
+  splitting for overlong logical lines, bounded same-owner overlap, and explicit progress guards.
+- Kept `CodeChunk.text` as exact source while adding a canonical transient embedding formatter for
+  language, project-relative file, qualified symbol name, and signature context.
+- Added deterministic SHA-256 source hashes and canonical-JSON SHA-256 chunk IDs.
+- Added focused construction, ownership, splitting, Unicode, CRLF, fallback, determinism,
+  serialization, safe-failure, and operation-count tests using an offset-aware fake tokenizer.
+- Updated `README.md`, this changelog, `docs/.CHAT_MEMORY.md`, and
+  `docs/HACKATHON_COMPLIANCE.md` with Phase 3 facts only.
+
+Tokenizer research and lifecycle decisions:
+
+- Confirmed installed `sentence-transformers` 5.6.0, `transformers` 5.13.1, `tokenizers` 0.22.2,
+  and `huggingface-hub` 1.23.0 behavior against installed signatures and Context7 documentation.
+- Fast-tokenizer offset mappings use original-character spans, and special tokens must be disabled
+  for exact chunk-budget accounting.
+- Constructing `SentenceTransformer` loads model modules/weights and may download uncached assets;
+  Phase 3 therefore accepts an externally managed tokenizer and performs no construction.
+- An offline, cache-only default-tokenizer probe reported that the tokenizer was not locally
+  available; no download was attempted. Phase 4 will supply the tokenizer from one managed cached
+  model lifecycle.
+
+Security and scope decisions:
+
+- Fixed errors do not echo source, signatures, tokenizer output, or attacker-controlled paths.
+- Token offsets are validated for type, order, bounds, and exact count agreement before slicing
+  decoded Python strings; UTF-8 byte offsets are never applied to decoded text.
+- Every completed split part is recounted against the complete canonical embedding text before it
+  is returned.
+- Split selection tokenizes each logical source region once for offsets and uses bounded search;
+  the deterministic large-source test guards against repeated whole-source prefix scanning.
+- A delegated Phase 3 security review found no validated high- or critical-severity issue. It
+  confirmed one low-severity hardening suggestion: an unusually long, tokenizer-cheap signature can
+  amplify character processing because mandatory signature context is retokenized for split
+  candidates. The bounded reproduction measured 192.4x source-character processing. A character
+  cap or signature rewrite would conflict with this phase's exact context contract, so the issue is
+  recorded for the Phase 4 tokenizer/indexer boundary, where file-size limits and model lifecycle
+  can be enforced together.
+- No filesystem reads, network access, model loading, vector generation, storage, indexing, search,
+  MCP behavior, or CLI expansion was added.
+- Graphify was not run or regenerated, and Phase 4 was not started.
+
+Changed files:
+
+- `src/codescope/chunker.py`
+- `tests/unit/test_chunker.py`
+- `README.md`
+- `BUILD_WEEK_CHANGELOG.md`
+- `docs/.CHAT_MEMORY.md`
+- `docs/HACKATHON_COMPLIANCE.md`
+
+Final validation:
+
+- `uv run pytest tests/unit/test_chunker.py -q` — 71 passed.
+- `uv run pytest tests/unit/test_chunker.py -v` — 71 passed.
+- Scoped chunker coverage — 96% (323 statements, 13 missed; 71 tests passed).
+- `uv run pytest tests/unit -q` — 236 passed.
+- `uv run pytest tests/security -q` — 24 passed.
+- Ruff passed; Ruff formatting reported 29 files already formatted.
+- Strict mypy passed for 17 source files.
+- `uv run codescope version` returned `CodeScope 0.1.0`.
+- The Codex Security configuration preflight returned `ready` with exit code 0; the delegated
+  review completed without a content-policy blocker and produced no reportable finding.
+- A bounded manual LF/CRLF/Unicode module-splitting check passed 200 deterministic cases.
+- Dependency, lockfile, Phase 4 module, and Graphify diff checks were empty.
+
+Every Phase 3 implementation and quality gate passed. Phase 3 is complete and its final clean audit
+received owner commit authorization. No Phase 4 functionality was started.
