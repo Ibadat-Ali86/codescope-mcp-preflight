@@ -301,3 +301,85 @@ Final Phase 4 validation after evidence updates:
 
 Every Phase 4 implementation, regression, quality, security, and scope gate passed. Phase 4 owner
 review and commit authorization were received; this Phase 4 commit records the validated result.
+
+
+### Phase 5 — Secure repository scanner and indexing orchestration
+
+Work performed on July 16, 2026, from Phase 4 commit `42c607c`:
+
+- Added deterministic `RepositoryScanner` discovery for `.py` and `.pyi` files using sorted project-relative POSIX ownership paths and physical inode/device deduplication.
+- Added configured exclusions plus repository-root `.gitignore` matching through installed `pathspec` 1.1.1. Nested `.gitignore` semantics are intentionally deferred.
+- Added mandatory environment, secret, key/certificate, archive, image, database, model-cache, virtual-environment, dependency-tree, cache, build, distribution, and runtime exclusions that ignore negations cannot re-enable.
+- Added default symlink rejection plus opt-in contained symlink following with external-target rejection, directory-cycle termination, runtime exclusion, and one deterministic physical-file owner.
+- Added maximum-plus-one descriptor reads, before/after identity/size/mtime checks, regular-file enforcement, NUL rejection, and strict UTF-8 decoding.
+- Added `RepositoryIndexer` orchestration across parser, chunker, complete embedding formatter, injected embedder, configured batches, temporary Chroma storage, atomic symbols/metadata, second-client verification, and live promotion.
+- Added restricted sibling `.codescope.build-*` and `.codescope.backup-*` handling, explicit Chroma closure before rename, rollback-capable promotion, and exact generated-path recursive cleanup.
+- Added `codescope index [PATH]`, explicit `--allow-model-download`, and `codescope status` while preserving `codescope version`.
+- Added status reconciliation for configuration fingerprint, model, language/file counts, symbol count, Chroma count, metadata schema, and bounded runtime size without model loading.
+- Added separate descriptor-read limits of 64 KiB for `index_meta.json` and 16 MiB for `symbols.json`; the smaller fixed-shape document and potentially larger symbol inventory do not share an arbitrary source-file limit.
+- Added deterministic scanner, Git-ignore, CLI, full-pipeline integration, rollback, corruption, model-network, metadata-size, and generated-path security tests.
+
+Phase 5 changed files:
+
+- `src/codescope/cli.py`
+- `src/codescope/indexer.py`
+- `src/codescope/models.py`
+- `src/codescope/storage.py`
+- `src/codescope/utils/gitignore.py`
+- `src/codescope/utils/json_io.py`
+- `tests/unit/test_cli.py`
+- `tests/unit/test_gitignore.py`
+- `tests/unit/test_indexer.py`
+- `tests/unit/test_models.py`
+- `tests/unit/test_storage.py`
+- `tests/integration/test_indexer_pipeline.py`
+- `tests/security/test_phase5_safety.py`
+- `README.md`
+- `BUILD_WEEK_CHANGELOG.md`
+- `docs/.CHAT_MEMORY.md`
+- `docs/HACKATHON_COMPLIANCE.md`
+
+Starting-state evidence:
+
+- Branch `main`, `HEAD`, and `origin/main` were all at `42c607c`; the working tree was clean.
+- `uv sync --frozen` checked 139 packages without changing `uv.lock`.
+- Python was 3.12.13 and CodeScope was 0.1.0.
+- Baseline suites passed 310 unit and 34 security tests; the existing real-model integration remained opt-in.
+- Baseline Ruff, formatting, and strict mypy passed.
+
+Final Phase 5 validation after the security correction:
+
+- `uv run pytest tests/unit/test_indexer.py -q` — 41 passed with 82 installed-Chroma deprecation warnings.
+- `uv run pytest tests/integration/test_indexer_pipeline.py -q` — 1 passed, 1 explicit real-model test skipped, with 38 warnings.
+- `uv run pytest tests/security/test_phase5_safety.py -q` — 27 passed with 111 warnings.
+- `uv run pytest tests/unit/test_cli.py tests/unit/test_gitignore.py -q` — 19 passed.
+- Focused verbose pipeline review — 69 passed, 1 explicit real-model test skipped, with 231 warnings.
+- Scoped `codescope.indexer` coverage — 88% (572 statements, 68 missed; 69 passed and 1 skipped).
+- `uv run pytest tests/unit -q` — 377 passed with 119 warnings.
+- `uv run pytest tests/integration -q` — 1 passed, 2 explicit real-model tests skipped, with 38 warnings.
+- Explicit fresh-process offline real-model integration — 3 passed with 58 warnings in 8.34 seconds.
+- `uv run pytest tests/security -q` — 61 passed with 116 warnings.
+- `uv run ruff check .` — passed.
+- `uv run ruff format --check .` — passed; 39 files already formatted.
+- `uv run mypy src/codescope` — passed; 18 source files checked.
+- `uv run codescope version` — `CodeScope 0.1.0`.
+- CLI fixture acceptance — 4 files, 11 symbols, 16 chunks, 0 skipped in 6.920 seconds; status reported root `.`, Python count 4, and index size 457982 bytes.
+- The generated `.codescope` runtime and coverage artifact were removed through exact validated cleanup; no repository-local model cache, build/backup directory, Chroma database, temporary JSON, or NumPy dump remained.
+
+Security review:
+
+- Codex Security capability preflight returned `ready`.
+- All six changed production files received full-file completion receipts. Delegated discovery workers exhausted their external usage allowance without producing usable receipts, so the parent completed every review and candidate phase locally.
+- One CWE-400 candidate was reproduced: repository and runtime directory iterators were fully materialized by `sorted()` before their entry counters ran. With a configured test limit of two, the instrumented iterator was consumed four times before the intended error could execute.
+- Validation classified the control-order defect as valid. Attack-path policy suppressed it as a reportable vulnerability because exploitation is developer-initiated, resource-intensive, transient, local, and limited to one process.
+- The working tree was hardened with a shared remaining-limit-plus-one iterator guard before sorting, and an operation-count regression proved exactly three consumptions for a remaining allowance of two.
+- Post-correction Ruff, strict mypy, and 68 focused indexer/security tests passed. The sealed scan report has complete coverage, zero reportable findings, and no unresolved validated high- or critical-severity issue.
+
+Scope confirmation:
+
+- `pyproject.toml` and `uv.lock` are unchanged.
+- `src/codescope/engine.py` and `src/codescope/server.py` are unchanged.
+- Graphify was not run or regenerated; `graphify-out/`, `.graphifyignore`, and `.codex/skills/graphify` are unchanged.
+- Phase 6 query-engine behavior was not started.
+
+Phase 5 is complete in the working tree and awaits owner review. No commit, push, tag, pull request, or remote-state change was made.

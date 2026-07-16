@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any, cast
 
@@ -11,10 +12,15 @@ import pytest
 from pydantic import ValidationError
 
 from codescope.config import StorageConfig
-from codescope.exceptions import ErrorCode, StorageFailedError
+from codescope.exceptions import ErrorCode, InvalidPathError, StorageFailedError
 from codescope.models import CodeChunk, Symbol
 from codescope.storage import ChromaStorage, IndexMetadata
-from codescope.utils.json_io import atomic_write_metadata_json
+from codescope.utils.json_io import (
+    INDEX_METADATA_MAX_BYTES,
+    SYMBOLS_METADATA_MAX_BYTES,
+    atomic_write_metadata_json,
+    read_metadata_json,
+)
 
 
 def _config(path: Path) -> StorageConfig:
@@ -83,6 +89,33 @@ def test_storage_initializes_only_runtime_and_chroma_directories(tmp_path: Path)
     assert (runtime / "chroma").is_dir()
     assert storage._settings.anonymized_telemetry is False
     assert storage._settings.allow_reset is False
+
+
+def test_open_existing_mode_does_not_create_missing_runtime(tmp_path: Path) -> None:
+    # Arrange
+    runtime = tmp_path / ".codescope"
+
+    # Act and Assert
+    with pytest.raises(StorageFailedError):
+        ChromaStorage(_config(runtime), create=False)
+    assert not runtime.exists()
+
+
+def test_close_is_idempotent_and_releases_runtime_for_sibling_rename(tmp_path: Path) -> None:
+    # Arrange
+    runtime = tmp_path / ".codescope"
+    replacement = tmp_path / ".codescope.backup-test"
+    storage = ChromaStorage(_config(runtime))
+    storage.initialize_collection()
+
+    # Act
+    storage.close()
+    storage.close()
+    os.replace(runtime, replacement)
+
+    # Assert
+    assert replacement.is_dir()
+    assert not runtime.exists()
 
 
 def test_storage_rejects_symlinked_runtime_even_if_config_validation_is_bypassed(
@@ -560,3 +593,51 @@ def test_reset_can_remove_only_known_metadata_and_preserve_unrelated_file(tmp_pa
     assert not (runtime / "symbols.json").exists()
     assert not (runtime / "index_meta.json").exists()
     assert unrelated.read_text(encoding="utf-8") == "keep"
+
+
+@pytest.mark.parametrize(
+    ("name", "maximum", "prefix", "expected"),
+    [
+        ("index_meta.json", INDEX_METADATA_MAX_BYTES, b"{}", {}),
+        ("symbols.json", SYMBOLS_METADATA_MAX_BYTES, b"[]", []),
+    ],
+)
+def test_metadata_reader_accepts_valid_json_one_byte_below_limit(
+    tmp_path: Path,
+    name: str,
+    maximum: int,
+    prefix: bytes,
+    expected: object,
+) -> None:
+    # Arrange
+    runtime = tmp_path / ".codescope"
+    runtime.mkdir()
+    (runtime / name).write_bytes(prefix + b" " * (maximum - 1 - len(prefix)))
+
+    # Act
+    result = read_metadata_json(runtime, name)  # type: ignore[arg-type]
+
+    # Assert
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    ("name", "maximum"),
+    [
+        ("index_meta.json", INDEX_METADATA_MAX_BYTES),
+        ("symbols.json", SYMBOLS_METADATA_MAX_BYTES),
+    ],
+)
+def test_metadata_reader_rejects_file_one_byte_above_limit(
+    tmp_path: Path,
+    name: str,
+    maximum: int,
+) -> None:
+    # Arrange
+    runtime = tmp_path / ".codescope"
+    runtime.mkdir()
+    (runtime / name).write_bytes(b"[]" + b" " * (maximum - 1))
+
+    # Act and Assert
+    with pytest.raises(InvalidPathError, match="safe size limit"):
+        read_metadata_json(runtime, name)  # type: ignore[arg-type]

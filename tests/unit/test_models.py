@@ -245,6 +245,18 @@ def test_index_status_unsafe_public_root_is_rejected(index_root: str) -> None:
         IndexStatus(**data)
 
 
+def test_index_status_accepts_privacy_safe_repository_root_marker() -> None:
+    # Arrange
+    data = _status_data()
+    data["index_root"] = "."
+
+    # Act
+    status = IndexStatus(**data)
+
+    # Assert
+    assert status.index_root == "."
+
+
 def test_index_status_languages_defensively_copies_input() -> None:
     # Arrange
     source = {"python": 2}

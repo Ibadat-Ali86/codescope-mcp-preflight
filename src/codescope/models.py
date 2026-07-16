@@ -199,6 +199,8 @@ class IndexStatus(_PublicModel):
     def validate_index_root(cls, value: str | None) -> str | None:
         """Prevent absolute host paths in public index status."""
         if value is not None:
+            if value == ".":
+                return value
             return _validate_public_path(value)
         return None
 

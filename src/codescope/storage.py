@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
-from pathlib import PurePosixPath, PureWindowsPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from types import MappingProxyType
-from typing import Annotated, Final, Literal, Self, cast
+from typing import Annotated, Final, Literal, Protocol, Self, cast
 
 import chromadb
 import numpy as np
@@ -47,6 +47,10 @@ _INDEX_SCHEMA: Final = "codescope-index-v1"
 
 NonNegativeInt = Annotated[int, Field(ge=0)]
 FiniteDistance = Annotated[float, Field(allow_inf_nan=False)]
+
+
+class _ClosableClient(Protocol):
+    def close(self) -> None: ...
 
 
 class _InternalStorageModel(BaseModel):
@@ -154,11 +158,12 @@ class IndexMetadata(_InternalStorageModel):
 class ChromaStorage:
     """Persistent local storage for immutable CodeScope source chunks."""
 
-    def __init__(self, config: StorageConfig) -> None:
+    def __init__(self, config: StorageConfig, *, create: bool = True) -> None:
         """Create one telemetry-disabled local persistent client.
 
         Args:
             config: Validated runtime path and collection identity.
+            create: Whether missing runtime and Chroma directories may be created.
 
         Raises:
             StorageFailedError: If the local runtime cannot be opened safely.
@@ -166,16 +171,34 @@ class ChromaStorage:
         self._config = config
         self._settings = Settings(anonymized_telemetry=False, allow_reset=False)
         try:
-            self._runtime_root = validate_runtime_directory(config.path, create=True)
+            self._runtime_root = validate_runtime_directory(config.path, create=create)
+            if not create and not self._runtime_root.is_dir():
+                raise StorageFailedError(_MISSING_COLLECTION_ERROR)
             self._chroma_path = validate_runtime_directory(
                 self._runtime_root / _CHROMA_DIRECTORY,
-                create=True,
+                create=create,
             )
+            if not create and not self._chroma_path.is_dir():
+                raise StorageFailedError(_MISSING_COLLECTION_ERROR)
             self._client: ClientAPI = chromadb.PersistentClient(
                 path=self._chroma_path,
                 settings=self._settings,
             )
+        except StorageFailedError:
+            raise
         except (ChromaError, InvalidPathError, OSError, RuntimeError, ValueError) as error:
+            raise StorageFailedError(_STORAGE_ERROR) from error
+
+    @property
+    def runtime_root(self) -> Path:
+        """Return the validated private runtime root for internal orchestration."""
+        return self._runtime_root
+
+    def close(self) -> None:
+        """Release Chroma resources before directory promotion or cleanup."""
+        try:
+            cast(_ClosableClient, self._client).close()
+        except (ChromaError, OSError, RuntimeError, ValueError) as error:
             raise StorageFailedError(_STORAGE_ERROR) from error
 
     def initialize_collection(self) -> None:
