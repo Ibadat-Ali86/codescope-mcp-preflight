@@ -383,3 +383,57 @@ Scope confirmation:
 - Phase 6 query-engine behavior was not started.
 
 Phase 5 is complete in the working tree and awaits owner review. No commit, push, tag, pull request, or remote-state change was made.
+
+
+### Phase 6 — Read-only semantic and symbol query engine
+
+Work performed on July 16, 2026, from committed Phase 5 SHA `9865e0c2c94bd62507a679be555e661cde22d4b5` on `main`:
+
+- Added a typed `QueryEngine` with `search_code`, `find_symbol`, `find_similar`, and `get_index_status` methods.
+- Reused the authoritative Phase 5 status path before every operation; missing or corrupt indexes fail without creating a runtime, collection, build directory, or backup directory.
+- Added lazy cache-only query embeddings with exactly one validated finite vector and no automatic model download.
+- Reused `ChromaStorage.query()` with `create=False`, optional normalized Python filtering, caller-bounded result counts, source-only stored snippets, and no returned embeddings.
+- Added bounded query, symbol-name, and snippet materialization; strict integer limits reject booleans and values outside `1..20`.
+- Added deterministic semantic ordering by score, path, lines, ownership, and stored identifier, with cosine relevance clamped to `[0.0, 1.0]`.
+- Added the required five-group symbol ranking, deterministic tie-breaking, kind filtering before limits, duplicate suppression, and no symbol cache that could hide index replacement.
+- Preserved known domain exceptions and safely chained only unexpected query-orchestration failures without source, query, vector, Chroma, or absolute-path content.
+- Added a deterministic fake-backed unit suite and an explicit cache-only/offline real-model integration that rebuilds the fixture, opens it through a new engine, finds `validate_email`, confirms `validators.py` lines 6–9, exercises similar-code search, and reconciles status counts.
+- No new version-sensitive direct Chroma or sentence-transformers API was introduced; Phase 6 uses the already documented and committed Phase 4/5 wrappers, so no additional Context7 lookup was required.
+
+Phase 6 changed files:
+
+- `src/codescope/engine.py`
+- `tests/unit/test_engine.py`
+- `tests/integration/test_query_engine.py`
+- `README.md`
+- `BUILD_WEEK_CHANGELOG.md`
+- `docs/.CHAT_MEMORY.md`
+- `docs/HACKATHON_COMPLIANCE.md`
+
+Observed Phase 6 validation before the final evidence-only pass:
+
+- `uv run pytest tests/unit/test_engine.py -q` — 63 passed.
+- `uv run pytest tests/integration/test_query_engine.py -q` — 1 explicit real-model test skipped because the opt-in environment flag was absent.
+- Scoped `codescope.engine` coverage — 91% (207 statements, 19 missed; uncovered lines 82, 194–195, 203–204, 209, 227–228, 236–239, 249–250, 266, 316, 358–359, and 375).
+- `uv run pytest tests/unit -q` — 440 passed with 119 installed-Chroma deprecation warnings.
+- `uv run pytest tests/integration -q` — 1 passed, 3 explicit real-model tests skipped, with 38 warnings.
+- Explicit cache-only/offline real-model matrix — 4 passed with 71 installed-Chroma deprecation warnings in 9.48 seconds.
+- `uv run pytest tests/security -q` — 61 passed with 116 warnings.
+- `uv run ruff check .` — passed.
+- `uv run ruff format --check .` — passed; 41 files already formatted.
+- `uv run mypy src/codescope` — passed; 18 source files checked.
+- `uv run codescope version` — `CodeScope 0.1.0`.
+- `git diff --check` — passed.
+
+Phase 6 security and scope review:
+
+- Codex Security capability preflight returned `ready`.
+- The repository-wide threat model was generated independently of the Phase 6 diff and copied unchanged into the scan context.
+- The single production worklist row, `src/codescope/engine.py`, received a complete full-file receipt with the Phase 6 tests and committed status/storage/model contracts used only as supporting evidence.
+- Discovery found no technically plausible candidate across query/snippet leakage, absolute paths, arbitrary source reads, query-side creation or mutation, unbounded materialization, malformed stored results, stale state, model egress, vector exposure, denial of service, and nondeterministic output.
+- With no candidate, validation and attack-path phases were correctly skipped. The finalized canonical scan bundle reports complete coverage, zero reportable findings, and no deferred work.
+- Independent manual review reached the same result.
+- `pyproject.toml`, `uv.lock`, `src/codescope/cli.py`, `src/codescope/server.py`, Graphify output/configuration/skill files, and all Phase 7+ files are unchanged.
+- Graphify was not run or regenerated. `/feedback` was not run. Phase 7 was not started.
+
+Phase 6 is complete in the working tree and awaits owner review. No Phase 6 file was staged, committed, pushed, tagged, or used to change remote state.
