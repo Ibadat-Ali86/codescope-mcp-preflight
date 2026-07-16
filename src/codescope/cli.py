@@ -49,6 +49,8 @@ def _stderr_console() -> Console:
 
 def _terminal_safe(value: str, *, multiline: bool = False) -> str:
     """Neutralize terminal formatting while optionally preserving source layout."""
+    if multiline:
+        value = value.replace("\r\n", "\n")
     sanitized: list[str] = []
     for character in value:
         category = unicodedata.category(character)
@@ -122,13 +124,13 @@ class _IndexProgress:
 
     def __exit__(
         self,
-        _exception_type: type[BaseException] | None,
+        exception_type: type[BaseException] | None,
         _exception: BaseException | None,
         _traceback: TracebackType | None,
     ) -> None:
         if self._progress is not None:
             self._progress.stop()
-        elif self._events_seen:
+        elif self._events_seen and exception_type is None and self._complete:
             self._console.print(
                 "Index progress: "
                 f"indexed={self._files}; skipped={self._skipped}; "

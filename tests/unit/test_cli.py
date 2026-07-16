@@ -328,6 +328,10 @@ def test_index_typed_failure_is_stderr_only_and_safe(monkeypatch: pytest.MonkeyP
             *,
             allow_model_download: bool = False,
         ) -> IndexSummary:
+            if callable(self.progress):
+                self.progress(ProgressEvent("scan", 0))
+                self.progress(ProgressEvent("file", 1, total=1, file="safe.py"))
+                self.progress(ProgressEvent("verify", 0))
             raise StorageFailedError(
                 "Repository indexing could not be completed safely."
             ) from OSError(secret)
@@ -489,6 +493,17 @@ def test_terminal_metadata_is_forced_to_one_visual_line_and_bidi_neutralized() -
     assert "\t" not in sanitized
     assert "‮" not in sanitized
     assert " " not in sanitized
+
+
+def test_multiline_terminal_output_normalizes_crlf_and_rejects_lone_carriage_return() -> None:
+    # Arrange
+    source = "first\r\nsecond\rlone\n"
+
+    # Act
+    sanitized = cli_module._terminal_safe(source, multiline=True)
+
+    # Assert
+    assert sanitized == "first\nsecond�lone\n"
 
 
 @pytest.mark.parametrize(
