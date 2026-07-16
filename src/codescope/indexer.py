@@ -40,6 +40,7 @@ from codescope.utils.language import SupportedLanguage, language_from_extension
 from codescope.utils.path_guard import (
     safe_resolve,
     validate_repository_root,
+    validate_reset_target,
     validate_runtime_directory,
 )
 
@@ -48,6 +49,8 @@ _STATUS_ERROR: Final = "No complete usable CodeScope index exists."
 _SCANNER_ERROR: Final = "The repository could not be scanned safely."
 _GENERATED_PATH_ERROR: Final = "The generated runtime path is unsafe."
 _MODEL_UNAVAILABLE_ERROR: Final = "The embedding model is unavailable locally."
+_RESET_ERROR: Final = "The local CodeScope index could not be reset safely."
+_RESET_NOT_FOUND: Final = "No local CodeScope index exists to reset."
 _FINGERPRINT_SCHEMA: Final = "codescope-index-config-v1"
 _MAX_SCAN_DIRECTORIES: Final = 100_000
 _MAX_SCAN_ENTRIES: Final = 1_000_000
@@ -978,6 +981,47 @@ class RepositoryIndexer:
             raise
         except (CodeScopeError, OSError, RuntimeError, UnicodeError, ValueError) as error:
             raise IndexNotFoundError(_STATUS_ERROR) from error
+
+    def reset(self) -> None:
+        """Delete only the exact configured runtime after repeated validation.
+
+        Portable filesystem state can still change after validation. The destructive
+        operation therefore revalidates immediately before deletion and never caches
+        a previously validated path.
+
+        Raises:
+            IndexNotFoundError: If the configured runtime does not exist.
+            InvalidPathError: If the configured runtime is outside the repository,
+                is a link, or is otherwise unsafe.
+            StorageFailedError: If exact runtime deletion cannot complete safely.
+        """
+        repository_root = validate_repository_root(self._config.index.root)
+        configured_runtime = self._config.storage.path
+        if not configured_runtime.exists() and not configured_runtime.is_symlink():
+            resolved_missing = validate_runtime_directory(configured_runtime)
+            if (
+                configured_runtime != resolved_missing
+                or resolved_missing == repository_root
+                or not _is_relative_to(resolved_missing, repository_root)
+            ):
+                raise InvalidPathError(_RESET_ERROR)
+            raise IndexNotFoundError(_RESET_NOT_FOUND)
+        target = validate_reset_target(
+            configured_runtime,
+            repository_root=repository_root,
+            configured_runtime_path=configured_runtime,
+        )
+        target = validate_reset_target(
+            target,
+            repository_root=repository_root,
+            configured_runtime_path=configured_runtime,
+        )
+        try:
+            shutil.rmtree(target)
+        except OSError as error:
+            raise StorageFailedError(_RESET_ERROR) from error
+        if target.exists() or target.is_symlink():
+            raise StorageFailedError(_RESET_ERROR)
 
     def _verify(self, storage_config: StorageConfig, expected: IndexMetadata) -> None:
         storage = self._storage_factory(storage_config, create=False)

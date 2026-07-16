@@ -4,9 +4,9 @@ CodeScope is a local-first MCP preflight system for developer tools. Its intende
 
 ## Current implementation status
 
-OpenAI Build Week Phase 6 is complete in the working tree and awaiting owner review. The repository currently provides:
+OpenAI Build Week Phase 7 is complete in the working tree and awaiting owner review. The repository currently provides:
 
-- a Python 3.12 package with `version`, `index`, and `status` acceptance commands;
+- a Python 3.12 package with `version`, `index`, `status`, `search`, `serve`, and `reset` commands;
 - immutable validated configuration, public models, stable domain errors, and centralized path guards;
 - Tree-sitter Python symbol extraction and model-budgeted, symbol-aware source chunking;
 - lazy cache-only Sentence Transformers embeddings and telemetry-disabled persistent Chroma storage;
@@ -21,8 +21,10 @@ OpenAI Build Week Phase 6 is complete in the working tree and awaiting owner rev
 - status validation that reconciles metadata, symbol, language, model, fingerprint, Chroma count, and runtime size.
 - a read-only query engine for semantic search, exact and partial symbol lookup, similar-code evidence, and authoritative index status;
 - bounded source-only snippets, deterministic ranking and tie-breaking, finite relevance scores, and stable typed query failures.
+- a production Typer/Rich CLI for safe indexing, authoritative status, semantic search, deterministic JSON, and exact-runtime reset;
+- fail-closed lazy `serve` wiring that reserves MCP implementation for Phase 8 without loading models or writing protocol data to stdout.
 
-CodeScope can now build, validate, and query a local index for a Python repository through its typed Python engine API. It does not yet provide MCP tools, the complete Phase 7 CLI, or the final duplication-prevention demonstration.
+CodeScope can now build, validate, query, and reset a local index for a Python repository through its CLI and typed Python engine API. It does not yet provide MCP tools, a functional stdio server, or the final duplication-prevention demonstration.
 
 ## Requirements
 
@@ -30,7 +32,7 @@ CodeScope can now build, validate, and query a local index for a Python reposito
 - [uv](https://docs.astral.sh/uv/)
 - A platform supported by the locked Python dependencies
 
-Phases 1 through 6 have been validated in the current Linux development environment. Broader supported-platform claims and clean-clone verification are deferred until the functional MVP exists.
+Phases 1 through 7 have been validated in the current Linux development environment. Broader supported-platform claims and clean-clone verification are deferred until the functional MVP exists.
 
 ## Setup
 
@@ -52,9 +54,12 @@ Run the current acceptance path from the repository root after the default model
 uv run codescope version
 uv run codescope index tests/fixtures/sample_python
 uv run codescope status
+uv run codescope search "email validation"
+uv run codescope search "email validation" --json
+uv run codescope reset --yes
 ```
 
-The observed Phase 5 fixture result is 4 accepted files, 11 symbols, and 16 chunks. The Phase 6 offline integration builds that fixture, finds `validate_email` for an email-validation search, returns `validators.py` lines 6–9 for exact symbol lookup, exercises similar-code search, and validates persisted status through a new engine instance. This remains a development acceptance path rather than the final judge workflow: CLI search, MCP configuration, clean-clone model preparation, and the duplication-prevention demonstration remain pending.
+The Phase 7 isolated offline acceptance run indexed 4 files into 11 symbols and 16 chunks, reported a ready index, returned `validate_email` at `validators.py` lines 6–9 for the semantic query, produced parseable JSON, preserved every fixture source hash, and removed only the temporary `.codescope` runtime. This remains a development acceptance path rather than the final judge workflow: MCP configuration, clean-clone model preparation, and the duplication-prevention demonstration remain pending.
 
 ## Testing
 
@@ -79,18 +84,18 @@ The license-safe fixtures under `tests/fixtures/sample_python/` cover representa
 
 - Python repositories only; supported source extensions are `.py` and `.pyi`.
 - Only the repository-root `.gitignore` is interpreted; nested `.gitignore` semantics are deferred.
-- No MCP tools, CLI search command, complete Phase 7 CLI, or agent preflight skill.
+- No MCP tools, functional `serve` implementation, symbol/similar-code CLI commands, or agent preflight skill.
 - The real model must be prepared explicitly before cache-only use; no model assets are stored in this repository.
 - Rebuild promotion is rollback-capable across tested failures, but portable filesystem operations cannot eliminate validation-to-use races or guarantee recovery from every simultaneous filesystem failure.
 - No dashboard, remote hosting, authentication, deployment, file watching, benchmark, or performance claim.
 
 ## Built During OpenAI Build Week
 
-The repository distinguishes pre-existing planning from Build Week implementation through dated Git history and [`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md). Work completed through Phase 6 comprises the package foundation, validated configuration and path security, Tree-sitter Python extraction, model-aware chunking, local embeddings, persistent Chroma, atomic metadata, deterministic secure discovery, bounded reads and batching, failure-safe full rebuilds, status verification, basic index/status CLI acceptance, read-only semantic and symbol querying, similar-code evidence, and focused regression/security tests. Later CLI, MCP, demonstration, and submission functionality remains unimplemented and must not be inferred from planning documents.
+The repository distinguishes pre-existing planning from Build Week implementation through dated Git history and [`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md). Work completed through Phase 7 comprises the package foundation, validated configuration and path security, Tree-sitter Python extraction, model-aware chunking, local embeddings, persistent Chroma, atomic metadata, deterministic secure discovery, bounded reads and batching, failure-safe full rebuilds, status verification, read-only semantic and symbol querying, similar-code evidence, the six-command CLI shell, safe terminal/JSON output, exact-runtime reset, and focused regression/security tests. MCP, demonstration, and submission functionality remains unimplemented and must not be inferred from planning documents.
 
 ## How Codex and GPT-5.6 Were Used
 
-Codex with GPT-5.6 was used in the primary implementation thread to inspect the Build Master and repository constraints; consult version-matched Tree-sitter, Hugging Face, Chroma, pathlib, and pathspec documentation; implement Phases 1–6; run deterministic, real-model, rollback, security, and CLI validation; and review each working-tree security diff. In Phase 5, Codex traced scanner and promotion boundaries, reproduced and corrected a bounded-directory materialization defect, and finalized the security ledger. In Phase 6, Codex implemented dependency-injected read-only query orchestration, deterministic semantic and symbol ranking, typed failure conversion, offline persisted-query integration, and a complete diff-focused security review. The owner supplied and approved the product positioning, phase boundaries, architecture, ranking and safety policies, evidence rules, model lifecycle, and implementation contract.
+Codex with GPT-5.6 was used in the primary implementation thread to inspect the Build Master and repository constraints; consult version-matched Tree-sitter, Hugging Face, Chroma, pathlib, pathspec, Typer, and Rich documentation; implement Phases 1–7; run deterministic, real-model, rollback, security, and CLI validation; and review each working-tree security diff. In Phase 5, Codex traced scanner and promotion boundaries and corrected a bounded-directory materialization defect. In Phase 6, Codex implemented dependency-injected query orchestration and deterministic ranking. In Phase 7, Codex implemented the CLI boundary, exact-runtime reset, offline command integration, and terminal/JSON injection hardening backed by reproduced malicious-filename tests. The owner supplied and approved the product positioning, phase boundaries, architecture, ranking and safety policies, evidence rules, model lifecycle, and implementation contract.
 
 This section records only completed work. The final acceleration narrative, demo claims, contribution summary, and `/feedback` Session ID remain pending until most core functionality is built. The Session ID will be obtained by the user running `/feedback` in the primary implementation thread; no value is invented here.
 

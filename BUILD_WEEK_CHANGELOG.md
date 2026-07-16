@@ -437,3 +437,59 @@ Phase 6 security and scope review:
 - Graphify was not run or regenerated. `/feedback` was not run. Phase 7 was not started.
 
 Phase 6 is complete in the working tree and awaits owner review. No Phase 6 file was staged, committed, pushed, tagged, or used to change remote state.
+
+
+### Phase 7 — Command-line interface and validated runtime reset
+
+Work performed on July 16, 2026, from committed Phase 6 SHA `f68f1e90c276e486be09825e4cbb435421889465` on `main`:
+
+- Replaced the Phase 5 acceptance shell with the six-command Typer interface: `version`, `index`, `status`, `search`, `serve`, and `reset`.
+- Kept `version` and every help path independent of configuration, storage, model loading, runtime creation, and network access.
+- Delegated index, authoritative status, and semantic search to the existing Phase 5/6 boundaries, preserving cache-only default model behavior and the explicit indexing download flag.
+- Added bounded deterministic progress output, complete index/status summaries, source-only human results, and stable sorted JSON output.
+- Disabled Rich markup/highlighting for repository-controlled values and neutralized terminal controls in human output. JSON uses ASCII escapes so line separators, bidi controls, and surrogate values cannot reach stdout literally while parsed values round-trip exactly.
+- Added a lazy, fail-closed `serve` shell. Phase 8 remains responsible for the MCP stdio implementation; the current failure writes a safe error to stderr and no protocol data to stdout.
+- Added confirmation-gated reset and `RepositoryIndexer.reset()`. Only the exact configured runtime strictly below the validated repository root can reach deletion, after a second immediate validation.
+- Added focused CLI unit, reset security, malicious-filename, and explicit offline real-model CLI integration tests.
+- Consulted installed-version Context7 references for Typer annotated options, confirmations, `CliRunner`, Rich stderr consoles, terminal detection, tables, and non-animated output.
+
+Phase 7 changed files:
+
+- Production: `src/codescope/cli.py` and `src/codescope/indexer.py`.
+- Tests: `tests/unit/test_cli.py`, `tests/integration/test_cli.py`, and `tests/security/test_cli_safety.py`.
+- Evidence: `README.md`, `BUILD_WEEK_CHANGELOG.md`, `docs/.CHAT_MEMORY.md`, and `docs/HACKATHON_COMPLIANCE.md`.
+
+Observed Phase 7 validation after the final terminal-output correction:
+
+- `uv run pytest tests/unit/test_cli.py -q` — 31 passed.
+- `uv run pytest tests/security -q -k 'cli or reset'` — 24 passed, 1 platform-specific junction test skipped, and 51 deselected, with 2 installed-Chroma deprecation warnings.
+- `uv run pytest tests/integration/test_cli.py -q` — 1 explicit real-model test skipped because the opt-in flag was absent.
+- All seven help/version checks passed; the root help lists exactly the six authorized commands and `CodeScope 0.1.0` remains unchanged.
+- `uv run pytest tests/unit -q` — 465 passed with 119 installed-Chroma deprecation warnings.
+- `uv run pytest tests/integration -q` — 1 passed, 4 explicit real-model tests skipped, with 38 warnings.
+- `uv run pytest tests/security -q` — 75 passed, 1 platform-specific junction test skipped, with 116 warnings.
+- Scoped CLI/indexer coverage — 90% total (799 statements, 82 missed). `codescope.cli` measured 95% (209 statements, 11 missed; uncovered lines 90, 111–120, 130, 159–168, 235–236, 250, and 360). `codescope.indexer` measured 88% (590 statements, 71 missed); reset-specific uncovered lines are the `OSError` translation and post-delete failure branches at 1021–1022 and 1024.
+- Explicit cache-only/offline real-model matrix, including the CLI workflow — 5 passed with 81 installed-Chroma deprecation warnings in 8.89 seconds.
+- `uv run ruff check .` — passed.
+- `uv run ruff format --check .` — passed; 43 files already formatted.
+- `uv run mypy src/codescope` — passed; 18 source files checked.
+- `git diff --check` — passed.
+
+Phase 7 manual acceptance in an isolated temporary workspace:
+
+- Help exposed the six authorized commands and version returned `CodeScope 0.1.0`.
+- Indexing accepted 4 files, extracted 11 symbols, stored 16 chunks, skipped 0 files, and completed in 5.717 seconds.
+- Status reported root `.`, Python count 4, and 457982 bytes.
+- Human and JSON semantic search both returned `validate_email` at `validators.py:6-9`; the JSON array parsed successfully.
+- Fixture source hashes were unchanged and reset removed only the temporary `.codescope` runtime.
+
+Phase 7 security and scope review:
+
+- Codex Security capability preflight was ready and the two changed production files received complete full-file discovery receipts.
+- Two terminal-integrity defects were reproduced and corrected: human metadata allowed newline/bidi visual forgery, and JSON stdout emitted literal Unicode separators/bidi controls. Regression tests now cover both human neutralization and exact JSON round-tripping with escaped controls.
+- Post-fix review found no remaining plausible candidate. Reset validation, path containment, symlink/junction behavior, confirmation, stdout/stderr separation, query/source privacy, bounded output, cache-only search, and generated-state behavior were reviewed explicitly.
+- The remaining reset validation-to-use race requires same-user or privileged filesystem mutation, is documented, and remains an accepted local-filesystem limitation rather than an unresolved high- or critical-severity issue.
+- `pyproject.toml`, `uv.lock`, `src/codescope/server.py`, `src/codescope/engine.py`, Graphify output/configuration/skill files, and every Phase 8+ production file are unchanged.
+- Graphify was not run or regenerated. `/feedback` was not run. Phase 8 was not started.
+
+Phase 7 is complete in the working tree and awaits owner review. No Phase 7 file is staged, committed, pushed, tagged, or used to change remote state.
