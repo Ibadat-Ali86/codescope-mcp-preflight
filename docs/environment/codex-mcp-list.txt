@@ -1,0 +1,5 @@
+Name      Command  Args                      Env  Cwd  Status   Auth       
+context7  npx      -y @upstash/context7-mcp  -    -    enabled  Unsupported
+
+Name                 Url                                Bearer Token Env Var  Status   Auth       
+openaiDeveloperDocs  https://developers.openai.com/mcp  -                     enabled  Unsupported

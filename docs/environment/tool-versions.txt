@@ -1,0 +1,17 @@
+Environment captured: 2026-07-18T00:22:57+05:00
+
+Python:
+Python 3.12.3
+
+Node.js:
+v22.23.1
+
+npm:
+10.9.8
+
+Git:
+git version 2.43.0
+
+Rust:
+zsh: command not found: rustc
+rustc not found
