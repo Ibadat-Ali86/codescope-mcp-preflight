@@ -544,18 +544,46 @@ def test_search_missing_index_does_not_echo_raw_query_or_absolute_path(tmp_path:
     assert str(tmp_path) not in result.stderr
 
 
-def test_serve_shell_is_lazy_stderr_only_and_phase8_honest() -> None:
-    # Arrange and Act
+def test_serve_dispatches_real_runner_without_normal_output(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    calls: list[str] = []
+    monkeypatch.setattr(cli_module, "_run_stdio_server", lambda: calls.append("serve"))
+
+    # Act
+    result = runner.invoke(app, ["serve"])
+
+    # Assert
+    assert result.exit_code == 0
+    assert result.stdout == ""
+    assert result.stderr == ""
+    assert calls == ["serve"]
+    assert _load_calls() == []
+    assert FakeIndexer.instances == []
+    assert FakeEngine.instances == []
+
+
+def test_serve_translates_unexpected_startup_failure_without_detail(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    sensitive_detail = "/tmp/private-model-cache"
+
+    def fail() -> None:
+        raise RuntimeError(sensitive_detail)
+
+    monkeypatch.setattr(cli_module, "_run_stdio_server", fail)
+
+    # Act
     result = runner.invoke(app, ["serve"])
 
     # Assert
     assert result.exit_code == 1
     assert result.stdout == ""
-    assert "MCP server implementation is not available" in result.stderr
-    assert "Phase 8" in result.stderr
-    assert _load_calls() == []
-    assert FakeIndexer.instances == []
-    assert FakeEngine.instances == []
+    assert "QUERY_FAILED" in result.stderr
+    assert "could not start safely" in result.stderr
+    assert sensitive_detail not in result.stderr
 
 
 def test_unrelated_commands_and_help_never_dispatch_server(

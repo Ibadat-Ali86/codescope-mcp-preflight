@@ -1,0 +1,18 @@
+# Run Codex from the CodeScope repository root so the command finds codescope.toml.
+# Prepare the configured embedding model and build the index before semantic queries.
+[mcp_servers.codescope]
+command = "uv"
+args = ["run", "codescope", "serve"]
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+enabled = true
+required = false
+enabled_tools = [
+  "search_code",
+  "find_symbol",
+  "find_similar",
+  "list_indexed_files",
+]
+default_tools_approval_mode = "auto"
+
+# Verify the configured server with `codex mcp list`, then inspect tools with `/mcp`.

@@ -25,6 +25,7 @@ from codescope.models import IndexStatus, SearchResult
 
 _CONFIG_PATH: Final = Path("codescope.toml")
 _SERVER_UNAVAILABLE: Final = "The MCP server implementation is not available in this build."
+_SERVER_FAILED: Final = "The MCP server could not start safely."
 _RESET_CONFIRMATION: Final = "Delete the configured local CodeScope index?"
 
 app = typer.Typer(
@@ -332,11 +333,19 @@ def search_code(
 
 @app.command("serve")
 def serve() -> None:
-    """Start the local stdio MCP server when its Phase 8 implementation is available."""
+    """Start the local read-only MCP server over stdio."""
     try:
         _run_stdio_server()
     except CodeScopeError as error:
         _fail(error)
+    except Exception as error:
+        # Keep startup failures off stdout and never expose implementation details.
+        failure = QueryFailedError(
+            _SERVER_FAILED,
+            suggestion="Verify the local installation and retry the stdio server.",
+        )
+        failure.__cause__ = error
+        _fail(failure)
 
 
 @app.command("reset")

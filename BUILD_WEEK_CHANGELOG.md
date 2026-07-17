@@ -493,3 +493,66 @@ Phase 7 security and scope review:
 - Graphify was not run or regenerated. `/feedback` was not run. Phase 8 was not started.
 
 Phase 7 is complete in the working tree and awaits owner review. No Phase 7 file is staged, committed, pushed, tagged, or used to change remote state.
+
+### Phase 8 — Local stdio MCP server and four read-only tools
+
+Work performed on July 16, 2026.
+
+Phase boundary:
+
+- Phase 7 implementation commit: `a874df89c19519c44c1eba342d47f6c1b9534552`.
+- Phase 7 corrective review commit: `c107abcbdb47c256cff21418384479eb8daf6323`.
+- Phase 8 starting SHA: `c107abcbdb47c256cff21418384479eb8daf6323`.
+- The two published Phase 7 commits were preserved without squash, amend, rebase, reset, or force-push.
+
+Implemented work:
+
+- Added a testable lazy FastMCP v1 server factory and stdio runner without import-time configuration, repository scanning, index validation, model loading, Chroma access, runtime creation, or network permission.
+- Exposed exactly `search_code`, `find_symbol`, `find_similar`, and `list_indexed_files` as read-only, non-destructive, idempotent, local/closed-world tools.
+- Delegated searches and status to the committed Phase 6 engine while preserving exact parameters, deterministic ordering, configured bounds, cache-only model behavior, source-only snippets, and authoritative per-call index revalidation.
+- Added deterministic server instructions whose first 512 characters contain the complete preflight policy, followed by explicit untrusted-source and REUSE/EXTEND/CREATE guidance.
+- Preserved existing immutable Pydantic success models and stable domain errors. Installed MCP 1.28.1 represents list/status success and error unions as schema-valid structured content under one `result` field.
+- Added strict protocol argument validation before FastMCP's compatibility conversion so malformed values and undocumented parameters return fixed structured errors without reflecting attacker-controlled content.
+- Added fixed-message expected and unexpected error translation, safe Loguru stderr metadata, protocol-only stdout, and cancellation/process-exit preservation.
+- Connected `codescope serve` to the real lazy stdio runner while keeping all unrelated CLI commands free from FastMCP initialization.
+- Added verified Codex configuration examples without modifying the active `.codex/config.toml`.
+
+Installed-version research:
+
+- Confirmed locked and installed `mcp` 1.28.1 with the stable project constraint `mcp[cli]>=1.27,<2`.
+- Used Context7 and installed package signatures/source to verify FastMCP construction, tool registration, structured output, `ToolAnnotations`, stdio client lifecycle, and SDK list/union schema wrapping.
+- Used current official Codex MCP documentation to verify stdio `command`, `args`, `startup_timeout_sec`, `tool_timeout_sec`, `enabled`, `required`, `enabled_tools`, and `default_tools_approval_mode`, plus the first-512-character instruction guidance.
+- Parsed `.codex/config.toml.example` with installed Codex CLI 0.144.5; `codex mcp list` registered `codescope` as enabled.
+
+Changed files:
+
+- Production: `src/codescope/server.py` and `src/codescope/cli.py`.
+- Tests: `tests/conftest.py`, `tests/unit/test_server.py`, `tests/unit/test_cli.py`, `tests/integration/test_mcp_tools.py`, and `tests/security/test_mcp_safety.py`.
+- Configuration examples: `.codex/config.toml.example` and `examples/codex_mcp_config.toml`.
+- Evidence: `README.md`, `BUILD_WEEK_CHANGELOG.md`, `docs/.CHAT_MEMORY.md`, and `docs/HACKATHON_COMPLIANCE.md`.
+
+Observed Phase 8 validation:
+
+- `uv run pytest tests/unit/test_server.py -q` — 18 passed in 2.42 seconds.
+- `uv run pytest tests/integration/test_mcp_tools.py -q` — 3 passed and 1 explicit real-model test skipped in 2.38 seconds.
+- `uv run pytest tests/security/test_mcp_safety.py -q` — 21 passed in 1.42 seconds.
+- `uv run pytest tests/unit/test_cli.py -q` — 33 passed in 0.98 seconds.
+- `uv run pytest tests/integration/test_cli.py -q` — 1 explicit real-model test skipped in 0.69 seconds.
+- `uv run pytest tests/security/test_cli_safety.py -q` — 14 passed and 1 platform-specific junction test skipped in 0.73 seconds.
+- Aggregate unit suite — 485 passed with 119 installed-Chroma deprecation warnings in 9.14 seconds.
+- Aggregate ordinary integration suite — 4 passed, 5 explicit real-model tests skipped, and 38 installed-Chroma deprecation warnings in 3.30 seconds.
+- Aggregate security suite — 96 passed, 1 platform-specific junction test skipped, and 116 installed-Chroma deprecation warnings in 5.85 seconds.
+- Explicit cache-only/offline real-model integration matrix — 9 passed with 86 installed-Chroma deprecation warnings in 11.27 seconds, including the MCP fixture index and all four tool calls.
+- Scoped coverage — `server.py` 100%, affected `cli.py` 92%, and 95% combined (331 statements, 18 missed); no server line remained uncovered.
+- CLI help, `serve --help`, and version passed; version remained `CodeScope 0.1.0`.
+
+Security and scope review:
+
+- The Codex Security capability preflight returned `ready` for the Phase 8 working-tree diff.
+- Independent full-file discovery reviewed the complete changed `server.py` and `cli.py`; no technically plausible security candidate survived, so candidate validation and attack-path analysis were not applicable.
+- Manual review confirmed no raw-input reflection, source/query/snippet/path leakage, stdout contamination, destructive or write tool, model download authorization, index mutation, filesystem read, schema-invalid response, cancellation swallowing, or Phase 9 behavior.
+- The expected local stdio request-allocation limitation remains bounded only after SDK JSON parsing; no remote listener or cross-user service is present in this phase.
+- `pyproject.toml`, `uv.lock`, indexer/storage, Graphify output/configuration/skill files, and every Phase 9+ production file are unchanged.
+- `/feedback` was not run.
+
+Phase 8 is complete in the working tree and remains unstaged and uncommitted for owner review. Phase 9 was not started.
