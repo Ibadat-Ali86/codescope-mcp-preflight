@@ -533,26 +533,32 @@ Changed files:
 
 Observed Phase 8 validation:
 
-- `uv run pytest tests/unit/test_server.py -q` — 18 passed in 2.42 seconds.
-- `uv run pytest tests/integration/test_mcp_tools.py -q` — 3 passed and 1 explicit real-model test skipped in 2.38 seconds.
-- `uv run pytest tests/security/test_mcp_safety.py -q` — 21 passed in 1.42 seconds.
+- `uv run pytest tests/unit/test_server.py -q` — 18 passed in 2.64 seconds.
+- `uv run pytest tests/integration/test_mcp_tools.py -q` — 3 passed and 1 explicit real-model test skipped in 2.62 seconds.
+- `uv run pytest tests/security/test_mcp_safety.py -q` — 21 passed in 1.46 seconds.
 - `uv run pytest tests/unit/test_cli.py -q` — 33 passed in 0.98 seconds.
-- `uv run pytest tests/integration/test_cli.py -q` — 1 explicit real-model test skipped in 0.69 seconds.
-- `uv run pytest tests/security/test_cli_safety.py -q` — 14 passed and 1 platform-specific junction test skipped in 0.73 seconds.
-- Aggregate unit suite — 485 passed with 119 installed-Chroma deprecation warnings in 9.14 seconds.
-- Aggregate ordinary integration suite — 4 passed, 5 explicit real-model tests skipped, and 38 installed-Chroma deprecation warnings in 3.30 seconds.
-- Aggregate security suite — 96 passed, 1 platform-specific junction test skipped, and 116 installed-Chroma deprecation warnings in 5.85 seconds.
-- Explicit cache-only/offline real-model integration matrix — 9 passed with 86 installed-Chroma deprecation warnings in 11.27 seconds, including the MCP fixture index and all four tool calls.
-- Scoped coverage — `server.py` 100%, affected `cli.py` 92%, and 95% combined (331 statements, 18 missed); no server line remained uncovered.
+- `uv run pytest tests/integration/test_cli.py -q` — 1 explicit real-model test skipped in 0.76 seconds.
+- `uv run pytest tests/security/test_cli_safety.py -q` — 14 passed and 1 platform-specific junction test skipped in 0.79 seconds.
+- Aggregate unit suite — 485 passed with 119 installed-Chroma deprecation warnings in 10.08 seconds.
+- Aggregate ordinary integration suite — 4 passed, 5 explicit real-model tests skipped, and 38 installed-Chroma deprecation warnings in 4.10 seconds.
+- Aggregate security suite — 96 passed, 1 platform-specific junction test skipped, and 116 installed-Chroma deprecation warnings in 6.53 seconds.
+- Explicit cache-only/offline real-model integration matrix — 9 passed with 86 installed-Chroma deprecation warnings in 18.14 seconds, including the MCP fixture index and all four tool calls.
+- Scoped coverage — `server.py` 100%, affected `cli.py` 92%, and 95% combined (332 statements, 18 missed); no server line remained uncovered.
 - CLI help, `serve --help`, and version passed; version remained `CodeScope 0.1.0`.
+- `uv run ruff check .` — passed.
+- `uv run ruff format --check .` — passed; 46 files already formatted.
+- `uv run mypy src/codescope` — passed; 18 source files checked.
+- `git diff --check` — passed.
 
 Security and scope review:
 
-- The Codex Security capability preflight returned `ready` for the Phase 8 working-tree diff.
-- Independent full-file discovery reviewed the complete changed `server.py` and `cli.py`; no technically plausible security candidate survived, so candidate validation and attack-path analysis were not applicable.
+- The final Codex Security capability preflight returned `ready` for the immutable Phase 8 revision diff from `c107abcb` through `5afc064`.
+- Independent full-file discovery reviewed all 355 lines of `server.py` and all 371 lines of `cli.py`; no technically plausible security candidate survived, so candidate validation and attack-path analysis were not applicable.
+- The canonical scan bundle was validated and sealed with complete diff coverage, zero reportable findings, and no unresolved validated high- or critical-severity issue. The report was produced outside the repository; no machine-specific report path is recorded here.
 - Manual review confirmed no raw-input reflection, source/query/snippet/path leakage, stdout contamination, destructive or write tool, model download authorization, index mutation, filesystem read, schema-invalid response, cancellation swallowing, or Phase 9 behavior.
+- One non-reportable defense-in-depth observation remains: installed FastMCP executes synchronous tool bodies serially within the caller's local stdio process. Existing bounds and the absence of a remote or cross-user service keep this a local performance limitation rather than a reportable finding.
 - The expected local stdio request-allocation limitation remains bounded only after SDK JSON parsing; no remote listener or cross-user service is present in this phase.
 - `pyproject.toml`, `uv.lock`, indexer/storage, Graphify output/configuration/skill files, and every Phase 9+ production file are unchanged.
 - `/feedback` was not run.
 
-Phase 8 is complete in the working tree and remains unstaged and uncommitted for owner review. Phase 9 was not started.
+On July 18, 2026, the final audit found that the owner had preserved the complete Phase 8 patch in checkpoint commit `5afc0648fb743c943f1fa2e592d8882967708b7c`, followed only by documentation handoff commits. Published history was not rewritten. Phase 8 is complete; these final evidence corrections remain unstaged and uncommitted for owner review. Phase 9 was not started.

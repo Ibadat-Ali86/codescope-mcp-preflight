@@ -4,7 +4,7 @@ CodeScope is a local-first MCP preflight system for developer tools. Its intende
 
 ## Current implementation status
 
-OpenAI Build Week Phase 8 is complete in the working tree and awaiting owner review. The repository currently provides:
+OpenAI Build Week Phase 8 is implemented on `main` in owner-created checkpoint commit `5afc064`. A final clean audit was completed on July 18, 2026; the resulting factual evidence corrections are in the working tree awaiting owner review. The repository currently provides:
 
 - a Python 3.12 package with `version`, `index`, `status`, `search`, `serve`, and `reset` commands;
 - immutable validated configuration, public models, stable domain errors, and centralized path guards;
@@ -34,7 +34,7 @@ CodeScope can now build, validate, query, and reset a local index for a Python r
 - [uv](https://docs.astral.sh/uv/)
 - A platform supported by the locked Python dependencies
 
-Phases 1 through 7 have been validated in the current Linux development environment. Broader supported-platform claims and clean-clone verification are deferred until the functional MVP exists.
+Phases 1 through 8 have been validated in the current Linux development environment. Broader supported-platform claims and clean-clone verification remain deferred.
 
 ## Setup
 
