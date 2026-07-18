@@ -561,4 +561,100 @@ Security and scope review:
 - `pyproject.toml`, `uv.lock`, indexer/storage, Graphify output/configuration/skill files, and every Phase 9+ production file are unchanged.
 - `/feedback` was not run.
 
-On July 18, 2026, the final audit found that the owner had preserved the complete Phase 8 patch in checkpoint commit `5afc0648fb743c943f1fa2e592d8882967708b7c`, followed only by documentation handoff commits. Published history was not rewritten. Phase 8 is complete; these final evidence corrections remain unstaged and uncommitted for owner review. Phase 9 was not started.
+On July 18, 2026, the final audit found that the owner had preserved the complete Phase 8 patch in checkpoint commit `5afc0648fb743c943f1fa2e592d8882967708b7c`, followed only by documentation handoff commits. Published history was not rewritten. The final evidence corrections were committed separately as `cd6f062bdad2ef25b28948ad79bdd62c49f97746` before Phase 9 began.
+
+### Phase 9 — Codex preflight skill and duplication-prevention demonstration
+
+Work performed on July 18, 2026, from clean synchronized `main` commit
+`cd6f062bdad2ef25b28948ad79bdd62c49f97746`:
+
+- Added the repository-scoped `codescope-preflight` Codex skill with valid minimal frontmatter,
+  inventory-first tool order, semantic, symbol, and similar-code evidence, an exact structured
+  REUSE/EXTEND/CREATE report, explicit untrusted-snippet handling, and fail-closed tool behavior.
+- Added a fixed bounded email-validator task manifest targeting `validate_email` in
+  `validators.py` at lines 6–9.
+- Added an import-safe judge demo that copies the reviewed fixture into a temporary workspace,
+  builds a separate cache-only index, starts the real committed stdio server, calls all four MCP
+  tools, and removes its Chroma/runtime state on success or failure.
+- Kept source snippets out of the report, produced deterministic source-free human and JSON output,
+  and required inventory, location, exact-symbol, similar-code, canonical-source, unchanged-hash,
+  and duplicate-absence evidence before recommending REUSE.
+- Added focused deterministic and opt-in real-model e2e coverage for skill contracts, task parsing,
+  tool ordering, safe output, fail-closed responses, path handling, canonical fixture integrity,
+  evidence conflicts, source changes, duplicate detection, and the real stdio workflow.
+- Added a reproducible demo runbook and factual before/after evidence without raw Codex
+  transcripts, session identifiers, account data, model-cache paths, or machine-specific links.
+
+Official Codex skill research and manual acceptance:
+
+- Current official Codex documentation confirmed repository skill discovery at
+  `.agents/skills/<name>/SKILL.md`, required `name` and `description` frontmatter, explicit
+  `$skill-name` invocation, and natural triggering from the description.
+- A controlled explicit invocation called `list_indexed_files`, `search_code`, `find_symbol`, and
+  `find_similar`, emitted the required report, recommended REUSE, and edited no file.
+- After refining only the description trigger wording, a fresh natural invocation called inventory
+  first, used all three search modes, emitted the structured report with uncertainty, recommended
+  REUSE, and edited no file. Exact fixture hashes before and after were equal.
+
+Phase 9 changed files:
+
+- Skill: `.agents/skills/codescope-preflight/SKILL.md`.
+- Demo: `scripts/demo.py` and `tests/fixtures/duplication_demo/task.json`.
+- Tests: `tests/e2e/test_duplication_prevention.py`.
+- Demo evidence: `docs/DEMO_SCRIPT.md` and `docs/DEMO_EVIDENCE.md`.
+- Living evidence: `README.md`, `BUILD_WEEK_CHANGELOG.md`, `docs/.CHAT_MEMORY.md`, and
+  `docs/HACKATHON_COMPLIANCE.md`.
+- No file under `src/codescope`, dependency or lockfile, MCP configuration example, Graphify path,
+  or Phase 10 file changed.
+
+Observed final validation after security corrections:
+
+- `uv run pytest tests/e2e/test_duplication_prevention.py -q` — 27 passed and 1 explicit real-model
+  test skipped in 2.97 seconds; `uv run python scripts/demo.py --help` passed.
+- `uv run pytest tests/unit/test_server.py -q` — 18 passed in 3.24 seconds.
+- `uv run pytest tests/integration/test_mcp_tools.py -q` — 3 passed and 1 explicit real-model test
+  skipped in 3.57 seconds.
+- `uv run pytest tests/security/test_mcp_safety.py -q` — 21 passed in 1.91 seconds.
+- `uv run pytest tests/unit/test_cli.py -q` — 33 passed in 1.67 seconds.
+- Aggregate unit — 485 passed with 119 installed-Chroma deprecation warnings in 10.11 seconds.
+- Aggregate ordinary integration — 4 passed, 5 explicit real-model tests skipped, and 38
+  installed-Chroma deprecation warnings in 4.03 seconds.
+- Aggregate security — 96 passed, 1 operating-system junction test skipped, and 116
+  installed-Chroma deprecation warnings in 6.95 seconds.
+- Aggregate e2e — 27 passed and 1 explicit real-model test skipped in 2.87 seconds.
+- Explicit offline/cache-only Phase 9 e2e — 28 passed with 5 installed-Chroma deprecation warnings
+  in 15.11 seconds.
+- Explicit offline/cache-only integration plus e2e matrix — 37 passed with 91 installed-Chroma
+  deprecation warnings in 20.14 seconds.
+- Ruff passed; formatting reported 48 files already formatted; strict mypy passed for 18 source
+  files, and the additional typed demo check passed for 1 file.
+- `uv lock --check` resolved the unchanged 142-package lock; `CodeScope 0.1.0` remained functional;
+  `git diff --check` passed.
+- The final human demo indexed 4 files, 11 symbols, and 16 chunks; all three evidence calls pointed
+  to `validate_email` at `validators.py:6-9`; the recommendation was REUSE; exact source hashes were
+  unchanged; no duplicate was present; observed duration was 14.72 seconds. This is an observation,
+  not a benchmark.
+- JSON-only output parsed successfully and contained no source snippet, embedding, protocol frame,
+  cache path, temporary path, or timestamp.
+
+Security and scope review:
+
+- Codex Security capability preflight returned `ready`, and complete-file review receipts covered
+  the skill, demo, manifest, tests, and demo documentation.
+- A fixture-root symlink escape and an unchanged-but-noncanonical false-REUSE path were reproduced
+  through the real cache-only demo. Attack-path policy classified both as nonreportable because
+  they require developer control of protected checkout state and have no remote surface or
+  privilege delta; both were corrected and regression-tested anyway.
+- A manifest-ancestor candidate could not influence the fixed scenario, and instruction-like task
+  values were rejected by exact literal validation. Manifest ancestry was hardened consistently.
+- A post-fix bypass review reproduced and closed a symlinked-ancestor path in the standalone source
+  hash helper. Final discovery found no surviving plausible candidate and no unresolved validated
+  high- or critical-severity issue.
+- The remaining validation-to-use race requires same-user filesystem mutation after validation and
+  is an accepted portable local-filesystem limitation.
+- One repository-required read-only `graphify query` was attempted during reconnaissance; its
+  stale result was not used in place of direct source inspection. Graphify output was not
+  regenerated or modified. Phase 10 was not started and `/feedback` was not run.
+
+Phase 9 is complete in the working tree and awaits owner review. Every Phase 9 file remains
+unstaged and uncommitted; no remote state was changed.

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "task_id": "email-validator-reuse",
+  "requested_behavior": "Validate an email address before creating a user account.",
+  "semantic_query": "email address validation with a local part, at sign, and dotted domain",
+  "likely_symbol": "validate_email",
+  "planned_signature": "def is_valid_email(email: str) -> bool: ...",
+  "expected_recommendation": "REUSE",
+  "expected_file": "validators.py",
+  "expected_symbol": "validate_email",
+  "expected_start_line": 6,
+  "expected_end_line": 9
+}
