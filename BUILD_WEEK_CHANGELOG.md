@@ -658,3 +658,138 @@ Security and scope review:
 
 Phase 9 is complete in the working tree and awaits owner review. Every Phase 9 file remains
 unstaged and uncommitted; no remote state was changed.
+
+### Phase 10 — Security, performance, documentation, and release readiness
+
+Work performed on July 18, 2026, from clean synchronized `main` commit
+`2c358ac3d1b3ab46e5c36b8302529fe4414276c9`:
+
+- Added an import-safe, bounded, cache-only fixture benchmark covering one index rebuild,
+  authoritative status, semantic search, exact symbol lookup, similar-code lookup, real MCP stdio
+  startup and calls, and the fixed duplication-prevention demo. Reports contain timing and
+  aggregate fixture metadata only; no source, embedding, hostname, user, cache, repository, or
+  temporary path is emitted.
+- Added an opt-in candidate-clone verifier. It clones `HEAD` with `--no-local`, applies the tracked
+  patch, copies only a fixed bounded allowlist of regular untracked Phase 10 files, synchronizes a
+  fresh clone-local environment, runs the CLI/MCP/demo/reset judge path offline, checks source and
+  source-repository integrity, and removes the clone/runtime on success or failure.
+- Added deterministic release/security tests for benchmark limits and privacy, candidate-patch
+  containment, untracked-file rejection, environment minimization, subprocess output/time bounds,
+  POSIX descendant termination, source immutability, cleanup, and complete real verification.
+- Added setup, architecture, API, security/threat, benchmark, coverage, troubleshooting, and Codex
+  handoff documentation. Updated the README and living submission checklist without marking video,
+  audio, Devpost, `/feedback`, tag, or repository-visibility work complete.
+- Corrected a real combined-suite collection blocker by selecting pytest's documented `importlib`
+  import mode for same-named test modules and added `mypy_path = "src"` so the exact typed-script
+  release command works.
+- Corrected a real package-compliance blocker by declaring the existing MIT license through PEP 639
+  metadata and including `LICENSE` in both sdist and wheel. No dependency or locked version changed.
+- Kept CI deferred: local ordinary suites are deterministic, but adding a workflow was optional and
+  would broaden this phase while the real model and clone paths intentionally require an external
+  prepared cache. The final owner may make a separate Phase 11 CI decision.
+
+Phase 10 files added:
+
+- `scripts/benchmark.py`
+- `scripts/verify_clean_setup.py`
+- `tests/release/test_benchmark.py`
+- `tests/release/test_clean_setup.py`
+- `tests/security/test_phase10_safety.py`
+- `docs/SECURITY.md`
+- `docs/ARCHITECTURE.md`
+- `docs/API.md`
+- `docs/SETUP.md`
+- `docs/BENCHMARKS.md`
+- `docs/COVERAGE.md`
+- `docs/TROUBLESHOOTING.md`
+
+Phase 10 files modified:
+
+- `pyproject.toml`
+- `README.md`
+- `BUILD_WEEK_CHANGELOG.md`
+- `docs/.CHAT_MEMORY.md`
+- `docs/HACKATHON_COMPLIANCE.md`
+- `docs/CODEX_HANDOFF.md`
+
+Observed final Phase 10 validation:
+
+- `uv run pytest tests/release -q` — 24 passed and 1 explicit clean-setup test skipped in 6.86
+  seconds.
+- `CODESCOPE_RUN_CLEAN_SETUP=1 uv run pytest tests/release/test_clean_setup.py -q` — 10 passed in
+  52.15 seconds.
+- Aggregate unit — 485 passed with 119 installed-Chroma deprecation warnings in 10.57 seconds.
+- Aggregate ordinary integration — 4 passed, 5 explicit real-model tests skipped, and 38 warnings
+  in 4.20 seconds.
+- Aggregate security after Phase 10 tests — 101 passed, 1 operating-system junction test skipped,
+  and 116 warnings in 7.29 seconds.
+- Aggregate ordinary e2e — 27 passed and 1 explicit real-model test skipped in 3.03 seconds.
+- Explicit cache-only/offline integration plus e2e — 37 passed with 91 warnings in 20.53 seconds.
+- Combined production coverage — 641 passed, 8 explicit/platform skips, and 273 warnings; 91%
+  across 2,833 statements with 245 missed in 28.27 seconds.
+- Ordinary deterministic script coverage — 56 passed and 2 opt-in skips; 57% combined (demo 71%,
+  benchmark 46%, clean verifier 50%). Separate real-process runs measured benchmark 76%, invoked
+  demo 74%, and clean verifier 55%; subprocess coverage was not combined into an inflated result.
+- Ruff passed; formatting reported 53 files already formatted; strict mypy passed for 18 source
+  files and the three typed scripts; `uv lock --check` resolved the unchanged 142-package lock;
+  `CodeScope 0.1.0` remained functional; `git diff --check` passed.
+
+Measured fixture benchmark on Linux, Python 3.12.13, 8 logical CPUs, CodeScope 0.1.0, and MCP
+1.28.1, with the already prepared default model cache and network disabled:
+
+- Fixture: 4 files, 11 symbols, 16 chunks.
+- Indexing: 5,638.879 ms.
+- Authoritative status: 23.999 ms median over 5 measured samples.
+- Semantic search: 54.975 ms median over 5 samples.
+- Exact symbol lookup: 37.858 ms median over 5 samples.
+- Similar-code lookup: 56.795 ms median over 5 samples.
+- MCP transport startup: 4.666 ms; initialization: 1,035.417 ms.
+- MCP tool round trip: 66.611 ms median over 20 calls.
+- Fixed demo: 7,717.399 ms; complete benchmark: 23,068.540 ms.
+- The demo recommended REUSE, source hashes remained unchanged, the duplicate was avoided, and all
+  benchmark runtime/workspace cleanup checks passed. These values are small-fixture,
+  environment-specific observations, not scale, quality, percentile, or service-level claims.
+
+Clean candidate and package evidence:
+
+- The final successful Linux candidate-clone verifier reached the demo in 45,937.116 ms and
+  completed in 47,731.470 ms, excluding model download. It applied all 12 authorized untracked
+  Phase 10 files, used a fresh clone-local `.venv`, a validated
+  external uv package cache, a separately prepared external model cache, temporary user state,
+  offline model flags, all four MCP tools, REUSE, exact source hashes, and complete clone/runtime
+  cleanup. A deliberately empty uv-cache run first reached the fixed 300-second timeout and cleaned
+  safely; the documented verifier now reuses the validated package cache rather than private
+  environment state.
+- `uv build` produced `codescope-0.1.0.tar.gz` and `codescope-0.1.0-py3-none-any.whl`. The wheel and
+  sdist include the unchanged MIT `LICENSE`, expose `License-Expression: MIT`, exclude tests,
+  runtime/model/Chroma/security/coverage/temp artifacts, and installed successfully in a fresh
+  temporary Python 3.12 environment. Version, root help, serve help, import, and safe missing-config
+  failure passed without creating runtime state. The standalone wheel resolves compatible declared
+  dependency ranges; `uv sync --locked` remains the exact repository-reproduction path.
+- Installed direct dependency and default-model license metadata was inventoried factually in
+  `docs/SECURITY.md`; no legal conclusion is claimed.
+
+Phase 10 security review:
+
+- Codex Security capability preflights returned `ready` for both the repository and working-tree
+  diff profiles. The repository scan ranked 82 source-like rows, selected 25 active runtime/config
+  files, manually added the preflight skill and two MCP examples, and closed all 28 full-file
+  receipts plus 12 high-impact boundary rows. No candidate or reportable finding survived.
+- One delegated MCP/storage review was blocked by the external content-policy classifier before it
+  produced a finding or receipt. Two longer repository workers and the diff worker were stopped at
+  the bounded review window. They were not retried or described as successful plugin reviews; the
+  parent completed every exact worklist row and the sealed reports record these limitations.
+- The Phase 10 working-tree diff scan reviewed `pyproject.toml`, both new release scripts, and the
+  three direct release/security test files. All six receipts and all three changed security
+  surfaces closed with no candidate or reportable finding.
+- Both canonical scan bundles finalized successfully outside the repository with complete
+  coverage and zero findings. Manual source-to-control review agreed: no shell execution,
+  attacker-controlled command, candidate path escape, inherited secret/process-injection state,
+  network/model download permission, source/path leak, unbounded loop, orphan child process,
+  repository-local cache/runtime, dependency drift, or Phase 11 behavior survived review.
+- No validated critical, high, medium, or low reportable issue remains. Documented residual risks
+  are the same-user filesystem validation-to-use race, explicit initial dependency/model
+  acquisition, local stdio allocation/performance limits, and environment-specific timing.
+
+Phase 10 passed its owner review and final clean audit. Phase 11 was not started, Graphify was not
+regenerated, `/feedback` was not run, and no release tag was created.

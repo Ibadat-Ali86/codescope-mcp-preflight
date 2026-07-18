@@ -3,6 +3,8 @@ name = "codescope"
 version = "0.1.0"
 description = "Local-first MCP preflight for discovering existing code before generating new implementations."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Ibadat-Ali86", email = "ibadcodes@gmail.com" }
 ]
@@ -48,7 +50,8 @@ python_version = "3.12"
 strict = true
 warn_unused_configs = true
 files = ["src/codescope"]
+mypy_path = "src"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = "-ra --import-mode=importlib"

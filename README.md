@@ -4,7 +4,8 @@ CodeScope is a local-first MCP preflight system for developer tools. Its intende
 
 ## Current implementation status
 
-OpenAI Build Week Phase 8 is complete through evidence-closure commit `cd6f062`. Phase 9 is complete in the working tree and awaits owner review. The repository currently provides:
+OpenAI Build Week Phase 9 is complete at commit `2c358ac`. Phase 10 release hardening is complete
+and owner-approved. The repository currently provides:
 
 - a Python 3.12 package with `version`, `index`, `status`, `search`, `serve`, and `reset` commands;
 - immutable validated configuration, public models, stable domain errors, and centralized path guards;
@@ -29,8 +30,17 @@ OpenAI Build Week Phase 8 is complete through evidence-closure commit `cd6f062`.
   exact-symbol, and similar-code evidence, and reports REUSE, EXTEND, or CREATE before editing;
 - a fixed cache-only duplication-prevention demo that uses the real stdio MCP server, verifies the
   canonical fixture and before/after source hashes, and leaves its isolated runtime temporary.
+- a bounded offline fixture benchmark with direct query, MCP, and demo timing;
+- a clean-candidate verifier that applies the working-tree patch to a real no-local clone, creates
+  a fresh locked environment, runs the CLI/MCP/demo judge path, proves source immutability, and
+  removes temporary state;
+- release security, setup, architecture, API, benchmark, coverage, and troubleshooting evidence;
+- verified sdist/wheel license metadata, artifact contents, and fresh-wheel installation.
 
-CodeScope can now build, validate, query, and reset a local index for a Python repository through its CLI, typed Python engine API, four-tool local MCP interface, and agent preflight workflow. It does not yet provide benchmarks, clean-clone release validation, or submission packaging.
+CodeScope can build, validate, query, and reset a local index for a Python repository through its
+CLI, typed Python engine API, four-tool local MCP interface, and agent preflight workflow. Phase 11
+submission packaging, video production, final `/feedback` capture, and Devpost work are not part of
+the current implementation.
 
 ## Requirements
 
@@ -38,14 +48,16 @@ CodeScope can now build, validate, query, and reset a local index for a Python r
 - [uv](https://docs.astral.sh/uv/)
 - A platform supported by the locked Python dependencies
 
-Phases 1 through 9 have been validated in the current Linux development environment. Broader supported-platform claims and clean-clone verification remain deferred.
+Phases 1 through 10 have been validated in the current Linux development environment. Public paths
+and path guards have cross-platform tests, but broader macOS/Windows execution claims remain
+unverified.
 
 ## Setup
 
 Clone the repository, then install the locked development environment:
 
 ```bash
-uv sync
+uv sync --locked
 ```
 
 The default configuration is [`codescope.toml`](codescope.toml). Configuration paths are resolved relative to that file. The indexing root must already exist; `codescope index` creates the configured runtime only for a validated rebuild.
@@ -67,7 +79,16 @@ uv run python scripts/demo.py
 uv run python scripts/demo.py --json
 ```
 
-The Phase 9 isolated offline demonstration indexed 4 files into 11 symbols and 16 chunks. Inventory, semantic, exact-symbol, and similar-code calls converged on `validate_email` at `validators.py` lines 6–9, the report recommended REUSE, exact source hashes remained unchanged, and no `is_valid_email` duplicate was created. The model still requires one explicit external-cache preparation step; clean-clone timing remains Phase 10 work.
+The isolated offline demonstration indexed 4 files into 11 symbols and 16 chunks. Inventory,
+semantic, exact-symbol, and similar-code calls converged on `validate_email` at `validators.py`
+lines 6–9, the report recommended REUSE, exact source hashes remained unchanged, and no
+`is_valid_email` duplicate was created. The model still requires one explicit external-cache
+preparation step.
+
+For the verified clean-candidate path and its prerequisites, see
+[`docs/SETUP.md`](docs/SETUP.md). The final July 18 Linux run reached the fixed demo in 45.937
+seconds after setup timing began and completed in 47.731 seconds total, excluding model download. This is
+an environment-specific observation, not a universal guarantee.
 
 ## Local MCP operation
 
@@ -90,17 +111,38 @@ uv run pytest tests/unit -q
 uv run pytest tests/integration -q
 uv run pytest tests/security -q
 uv run pytest tests/e2e -q
+uv run pytest tests/release -q
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src/codescope
+uv run mypy scripts/demo.py scripts/benchmark.py scripts/verify_clean_setup.py
 uv run codescope version
 ```
 
-Phase-specific commands and observed results are recorded in [`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md). Hackathon submission requirements are tracked in [`docs/HACKATHON_COMPLIANCE.md`](docs/HACKATHON_COMPLIANCE.md).
+Phase-specific commands and observed results are recorded in
+[`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md). Hackathon submission requirements are
+tracked in [`docs/HACKATHON_COMPLIANCE.md`](docs/HACKATHON_COMPLIANCE.md).
+
+## Technical documentation
+
+- [Setup and judge path](docs/SETUP.md)
+- [Architecture and trust boundaries](docs/ARCHITECTURE.md)
+- [CLI and MCP API](docs/API.md)
+- [Security model and dependency/license inventory](docs/SECURITY.md)
+- [Fixture benchmark methodology and measured values](docs/BENCHMARKS.md)
+- [Coverage methodology and per-module evidence](docs/COVERAGE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Codex handoff](docs/CODEX_HANDOFF.md)
+- [Duplication-prevention demo runbook](docs/DEMO_SCRIPT.md)
 
 ## Sample data
 
-The license-safe fixtures under `tests/fixtures/sample_python/` cover representative Python syntax and serve as the deterministic indexing and query sample. `tests/fixtures/duplication_demo/task.json` defines the fixed email-validator task, and [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) documents the judge-facing run. Unit tests use injected model/tokenizer/storage seams without network access; explicit integration and e2e tests exercise the already cached default model offline through the real stdio server. Clean-clone model preparation remains Phase 10 work.
+The license-safe fixtures under `tests/fixtures/sample_python/` cover representative Python syntax
+and serve as the deterministic indexing, query, benchmark, and clean-setup sample.
+`tests/fixtures/duplication_demo/task.json` defines the fixed email-validator task. Unit tests use
+injected model/tokenizer/storage seams without network access; explicit integration, e2e,
+benchmark, and clean-candidate checks exercise the already cached default model offline through the
+real stdio server.
 
 ## Current limitations
 
@@ -109,22 +151,45 @@ The license-safe fixtures under `tests/fixtures/sample_python/` cover representa
 - No symbol or similar-code CLI subcommands; those evidence paths are available through MCP and the
   preflight skill.
 - The real model must be prepared explicitly before cache-only use; no model assets are stored in this repository.
+- Repository setup uses `uv sync --locked` for exact locked dependency reproduction. A standalone
+  wheel install resolves the package's compatible dependency ranges and is not an exact substitute
+  for the repository lockfile.
 - The demonstration fixture is intentionally small, and a REUSE, EXTEND, or CREATE recommendation
   still requires agent judgment; similarity does not prove semantic equivalence.
 - Rebuild promotion is rollback-capable across tested failures, but portable filesystem operations cannot eliminate validation-to-use races or guarantee recovery from every simultaneous filesystem failure.
-- No dashboard, remote hosting, authentication, deployment, file watching, benchmark, or performance claim.
-- Broader Windows and macOS validation, a clean-clone release pass, and final submission work remain pending.
+- The benchmark uses an intentionally small fixture. Its numbers are environment-specific and do
+  not establish large-repository performance or semantic quality.
+- No dashboard, remote hosting, authentication, deployment, file watching, or incremental update.
+- Broader Windows and macOS execution, automated CI, and final submission work remain pending.
 
 ## Built During OpenAI Build Week
 
-The repository distinguishes pre-existing planning from Build Week implementation through dated Git history and [`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md). Work completed through Phase 9 comprises the package foundation, validated configuration and path security, Tree-sitter Python extraction, model-aware chunking, local embeddings, persistent Chroma, atomic metadata, deterministic secure discovery, bounded reads and batching, failure-safe full rebuilds, status verification, read-only semantic and symbol querying, similar-code evidence, the six-command CLI, safe terminal/JSON output, exact-runtime reset, the four-tool local stdio MCP server, the repository preflight skill, and the fixed duplication-prevention demonstration. Benchmarks, clean-clone release validation, and submission work remain incomplete and must not be inferred from planning documents.
+The repository distinguishes pre-existing planning from Build Week implementation through dated Git
+history and [`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md). Work completed through Phase 10
+comprises the package foundation, validated configuration/path security, Python parsing and
+model-budgeted chunking, local embeddings and Chroma, secure failure-safe indexing, read-only query
+and MCP surfaces, the CLI, preflight skill, fixed duplication demo, complete release-security
+documentation, measured fixture benchmark, meaningful coverage evidence, real candidate-clone
+verification, and package build/install auditing. Phase 11 submission work must not be inferred
+from planning documents.
 
 ## How Codex and GPT-5.6 Were Used
 
-Codex with GPT-5.6 was used in the primary implementation thread to inspect the Build Master and repository constraints; consult version-matched Tree-sitter, Hugging Face, Chroma, pathlib, pathspec, Typer, Rich, MCP SDK, and official Codex documentation; implement Phases 1–9; run deterministic, real-model, rollback, protocol, security, CLI, and e2e validation; and review each working-tree security diff. In Phase 9, Codex implemented and manually exercised the explicit and natural repository-skill paths, built the real-stdio isolated demo, and used adversarial review to bind fixture reads to safe paths and REUSE to the reviewed canonical source tree. The owner supplied and approved the product positioning, phase boundaries, architecture, ranking and safety policies, evidence rules, model lifecycle, and implementation contract.
+Codex with GPT-5.6 was used in the primary implementation thread to inspect the Build Master and
+repository constraints; consult version-matched Tree-sitter, Hugging Face, Chroma, pathlib,
+pathspec, Typer, Rich, pytest, uv build, MCP SDK, and official Codex documentation; implement Phases
+1–10; run deterministic, real-model, rollback, protocol, security, CLI, e2e, benchmark,
+clean-candidate, coverage, and package validation; and review each working-tree security diff. In
+Phase 10, Codex reproduced and corrected combined-suite test collection and package-license
+metadata blockers, then implemented bounded release tooling and factual technical evidence. The
+owner supplied and approved the product positioning, phase boundaries, architecture, ranking and
+safety policies, evidence rules, model lifecycle, and implementation contract.
 
 This section records only completed work. The final acceleration narrative, demo claims, contribution summary, and `/feedback` Session ID remain pending until most core functionality is built. The Session ID will be obtained by the user running `/feedback` in the primary implementation thread; no value is invented here.
 
 ## License
 
-CodeScope is distributed under the repository's [`LICENSE`](LICENSE). Third-party dependency licenses must be reviewed and documented before submission.
+CodeScope is distributed under the repository's unchanged MIT [`LICENSE`](LICENSE). The wheel and
+sdist include that license through PEP 639 metadata. Direct and notable transitive dependency/model
+license evidence is recorded factually in [`docs/SECURITY.md`](docs/SECURITY.md); it is not legal
+advice.
