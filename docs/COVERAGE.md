@@ -24,6 +24,12 @@ measured 91% coverage (2,833 statements, 245 missed); 641 tests passed, 8 explic
 platform-specific cases skipped, and pytest reported 273 installed-dependency warnings. The new
 tests therefore increased release-path evidence without manufacturing a production coverage gain.
 
+The parser-fixed final candidate was remeasured on July 22. It passed 653 tests, skipped the same 8
+documented explicit/platform cases, and reported 280 installed-dependency warnings. Coverage
+remained 91% across 2,838 statements with 245 missed. The five additional production statements are
+the Tree-lifetime and identifier-range hardening; the added parser and rollback tests preserve the
+same overall measured percentage.
+
 | Production module | Baseline coverage | Accepted gap classification |
 |---|---:|---|
 | `codescope.__init__` | 100% | None |

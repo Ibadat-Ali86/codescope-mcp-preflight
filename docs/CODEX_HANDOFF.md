@@ -9,10 +9,13 @@ CREATE decision without executing indexed source.
 ## Current working state
 
 - Branch: `main`.
-- Phase 9 implementation commit and Phase 10 starting SHA:
-  `2c358ac3d1b3ab46e5c36b8302529fe4414276c9`.
-- Current phase: Phase 10 — security, performance, documentation, and release readiness.
-- Status: complete after all local gates and owner approval.
+- Phase 10 commit and Phase 11 starting SHA:
+  `39f85be6f5e876a82d52f487505952b0a9f4ff3b`.
+- Current phase: Phase 11 — final submission packaging, release, and Devpost verification.
+- Status: the staged Phase 11 candidate passed the real clean-candidate verifier and remains
+  uncommitted; final owner review and all external-write gates remain open. The supplied public
+  routing-ownership recording is 5:47 and is not an eligible final video; its fixture is not in
+  this repository.
 - Version: `0.1.0`.
 - The Phase 10 boundary is the commit containing this handoff update. No Phase 10 release tag was
   created.
@@ -31,7 +34,8 @@ CREATE decision without executing indexed source.
 | 7 | Six-command CLI and validated reset | `a874df8` plus `c107abc` correction |
 | 8 | Four-tool local stdio MCP server | `5afc064` plus `cd6f062` evidence closure |
 | 9 | Repository preflight skill and fixed duplication demo | `2c358ac` |
-| 10 | Release security/docs, benchmark, coverage, clean clone, package audit | commit containing this update |
+| 10 | Release security/docs, benchmark, coverage, clean clone, package audit | `39f85be` |
+| 11 | Final submission assets, owner-reviewed narrative, release, video, and Devpost | In progress; uncommitted |
 
 Detailed implementation and observed results are in `BUILD_WEEK_CHANGELOG.md` and
 `docs/.CHAT_MEMORY.md`.
@@ -152,14 +156,14 @@ Do not record cache paths or secret environment values in repository evidence.
 - Devpost entry, public video/audio, `/feedback` Session ID, release tag, and final submission
   packaging remain incomplete.
 
-## Recommended next Codex task
+## Current Phase 11 task
 
-Phase 11 — final submission packaging and evidence closure, only after separate owner authorization.
-Do not change product behavior unless a reproduced release blocker requires a separately approved
-correction. Required owner actions include final repository visibility/license check,
-judge quickstart review, public sub-three-minute YouTube demo with required audio, `/feedback`
-Session ID capture from the primary implementation thread, clean clone on any additionally claimed
-platform, and final Devpost submission verification.
+Complete the owner-reviewed submission narrative, final candidate validation, public release,
+sub-three-minute YouTube demo with required audio, `/feedback` Session ID capture from the primary
+implementation thread, and live Devpost submission verification. Do not change product behavior
+unless a reproduced release blocker receives separate owner approval. Creating or updating a
+Devpost project, committing, tagging, publishing a release, uploading media, and submitting are
+separate owner-gated external writes.
 
 ## Final completion criteria
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pytest
@@ -29,7 +29,7 @@ from codescope.indexer import (
     SkipReason,
     _cleanup_generated_directory,
 )
-from codescope.models import CodeChunk
+from codescope.models import CodeChunk, Symbol
 from codescope.storage import ChromaStorage
 from codescope.utils.json_io import read_metadata_json
 
@@ -346,6 +346,27 @@ def test_scanner_failure_cleans_temporary_build_and_preserves_live_index(
     with pytest.raises(StorageFailedError) as error_info:
         RepositoryIndexer(config, embedder=SafeEmbedder()).rebuild()
     assert str(tmp_path) not in str(error_info.value)
+    _assert_old_index(config, expected)
+
+
+def test_parser_boundary_failure_cleans_candidate_and_preserves_live_index(
+    tmp_path: Path,
+) -> None:
+    # Arrange
+    _write(tmp_path / "value.py")
+    config = _config(tmp_path, tmp_path / ".codescope")
+    expected = _build_healthy(config)
+
+    class FailingParser:
+        def parse(self, _source: bytes, *, file: str, language: str) -> list[Symbol]:
+            raise RuntimeError("private parser failure")
+
+    # Act and Assert
+    with pytest.raises(StorageFailedError) as error_info:
+        RepositoryIndexer(
+            config, parser=cast(Any, FailingParser()), embedder=SafeEmbedder()
+        ).rebuild()
+    assert "private parser failure" not in str(error_info.value)
     _assert_old_index(config, expected)
 
 

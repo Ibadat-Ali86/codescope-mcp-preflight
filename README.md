@@ -1,11 +1,80 @@
 # CodeScope
 
-CodeScope is a local-first MCP preflight system for developer tools. Its intended workflow helps GPT-5.6 and Codex inspect an existing Python repository before generating code, so they can make evidence-backed **REUSE**, **EXTEND**, or **CREATE** decisions and reduce duplicate logic.
+![CodeScope — understand the repository before generating more code](assets/submission/cover.png)
+
+**Understand the repository before generating more code.**
+
+CodeScope is a local-first MCP preflight for Python developer tools. It helps Codex and other
+coding agents inspect existing implementations before editing, then make an evidence-backed
+**REUSE**, **EXTEND**, or **CREATE** decision.
+
+## Verified duplication-prevention demo
+
+This is a deterministic small-fixture demonstration, not a large-repository performance claim.
+
+| Evidence | Observed result |
+|---|---|
+| Indexed | 4 files, 11 symbols, 16 chunks |
+| Requested task | Email validation before account creation |
+| Existing implementation | `validate_email` |
+| Location | `validators.py:6–9` |
+| Recommendation | **REUSE** |
+| Source changed | No |
+| Duplicate created | No |
+
+![CodeScope deterministic demo result](assets/submission/screenshot-demo-result.png)
+
+### Demo alignment
+
+The reproducible repository and judge route are the email-validation demonstration above. A separate
+owner-supplied routing-ownership recording is 5:47 and its `RoutingPolicy` / `ResponseSla`
+comparison fixture is not present in this repository. It is therefore not an eligible final
+submission video and is not judge-route evidence. Before submission, the owner must either record
+a sub-three-minute narrated video of the reproducible email-validation route or add and document a
+reproducible routing comparison without private artifacts.
+
+## Problem and solution
+
+AI coding agents can produce plausible new code without first establishing what an existing
+repository already owns. That can create duplicate validators, helpers, and services, inconsistent
+behavior, architectural drift, and additional maintenance work.
+
+CodeScope makes repository understanding a concrete preflight. It securely discovers local Python
+source, extracts symbols, creates tokenizer-budgeted chunks, produces local embeddings, persists a
+local index, and exposes semantic plus exact-symbol evidence through a CLI and four read-only MCP
+tools. A repository-scoped skill compares behavior, ownership, differences, confidence, and
+uncertainty before recommending REUSE, EXTEND, or CREATE.
+
+## Why CodeScope is different
+
+- **Evidence before generation:** inventory, behavioral search, exact symbols, and similar-code
+  evidence are gathered before an edit is proposed.
+- **Local-first privacy:** source and vectors stay local; no cloud embedding API is used.
+- **A decision workflow, not a score:** similarity is evidence rather than proof, and the coding
+  agent or developer owns the final decision.
+- **Explicit trust boundaries:** retrieved repository content is untrusted evidence, never
+  instructions, and CodeScope never executes indexed source.
+- **A complete developer-tool path:** index → inspect → search → MCP → preflight →
+  REUSE/EXTEND/CREATE.
+
+## How it works
+
+![CodeScope architecture and trust boundaries](assets/submission/architecture.png)
+
+1. Central path guards and mandatory exclusions contain repository discovery.
+2. Tree-sitter extracts Python symbols without filesystem access.
+3. Symbol-aware chunking preserves source ownership and the embedding model's real token budget.
+4. A prepared local sentence-transformer embeds chunks into telemetry-disabled local Chroma.
+5. QueryEngine provides deterministic semantic, symbol, similar-code, and status operations.
+6. The CLI and local stdio MCP server expose safe read-only evidence.
+7. `$codescope-preflight` turns converging evidence into a traceable recommendation.
+
+See [the complete architecture and trust boundaries](docs/ARCHITECTURE.md).
 
 ## Current implementation status
 
-OpenAI Build Week Phase 9 is complete at commit `2c358ac`. Phase 10 release hardening is complete
-and owner-approved. The repository currently provides:
+OpenAI Build Week Phases 0–10 are complete at commit `39f85be`. Phase 11 submission packaging is
+in progress and remains uncommitted pending owner review. The repository currently provides:
 
 - a Python 3.12 package with `version`, `index`, `status`, `search`, `serve`, and `reset` commands;
 - immutable validated configuration, public models, stable domain errors, and centralized path guards;
@@ -38,9 +107,9 @@ and owner-approved. The repository currently provides:
 - verified sdist/wheel license metadata, artifact contents, and fresh-wheel installation.
 
 CodeScope can build, validate, query, and reset a local index for a Python repository through its
-CLI, typed Python engine API, four-tool local MCP interface, and agent preflight workflow. Phase 11
-submission packaging, video production, final `/feedback` capture, and Devpost work are not part of
-the current implementation.
+CLI, typed Python engine API, four-tool local MCP interface, and agent preflight workflow. The
+Phase 11 release, video, final `/feedback` capture, Devpost draft creation, and actual submission
+remain separately owner-gated and incomplete.
 
 ## Requirements
 
@@ -85,10 +154,29 @@ lines 6–9, the report recommended REUSE, exact source hashes remained unchange
 `is_valid_email` duplicate was created. The model still requires one explicit external-cache
 preparation step.
 
-For the verified clean-candidate path and its prerequisites, see
-[`docs/SETUP.md`](docs/SETUP.md). The final July 18 Linux run reached the fixed demo in 45.937
-seconds after setup timing began and completed in 47.731 seconds total, excluding model download. This is
+For the no-source-build release route, locked source route, and evidence-only route, see
+[`docs/JUDGE_TESTING.md`](docs/JUDGE_TESTING.md). For the complete setup and clean-candidate
+prerequisites, see [`docs/SETUP.md`](docs/SETUP.md). A parser-fixed July 22 Linux candidate
+reached the fixed demo in 60.855 seconds after setup timing began and completed in 63.586 seconds
+total, excluding model download. This is
 an environment-specific observation, not a universal guarantee.
+
+## Measured evidence
+
+| Gate | Observed final-candidate evidence |
+|---|---:|
+| Production coverage | 91% — 2,838 statements, 245 missed |
+| Unit tests | 492 passed |
+| Security tests | 102 passed |
+| Offline real-model matrix | 37 passed |
+| Clean candidate to demo | 60.855 seconds |
+| Fixture semantic-search median | 54.975 ms |
+| Fixture pooled MCP round-trip median | 66.611 ms |
+
+These values were measured on the documented Linux environment and small committed fixture. They
+are not universal latency, scale, or semantic-quality guarantees. See
+[`docs/COVERAGE.md`](docs/COVERAGE.md), [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md), and
+[`docs/SECURITY.md`](docs/SECURITY.md) for methods and limitations.
 
 ## Local MCP operation
 
@@ -126,6 +214,7 @@ tracked in [`docs/HACKATHON_COMPLIANCE.md`](docs/HACKATHON_COMPLIANCE.md).
 ## Technical documentation
 
 - [Setup and judge path](docs/SETUP.md)
+- [Judge testing: release, locked source, and evidence-only routes](docs/JUDGE_TESTING.md)
 - [Architecture and trust boundaries](docs/ARCHITECTURE.md)
 - [CLI and MCP API](docs/API.md)
 - [Security model and dependency/license inventory](docs/SECURITY.md)
@@ -134,6 +223,9 @@ tracked in [`docs/HACKATHON_COMPLIANCE.md`](docs/HACKATHON_COMPLIANCE.md).
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Codex handoff](docs/CODEX_HANDOFF.md)
 - [Duplication-prevention demo runbook](docs/DEMO_SCRIPT.md)
+- [Build Week video script and verification](docs/VIDEO_SCRIPT.md)
+- [Submission screenshot capture and privacy review](docs/SCREENSHOT_PLAN.md)
+- [Final release and submission checklist](docs/FINAL_RELEASE_CHECKLIST.md)
 
 ## Sample data
 
@@ -185,7 +277,10 @@ metadata blockers, then implemented bounded release tooling and factual technica
 owner supplied and approved the product positioning, phase boundaries, architecture, ranking and
 safety policies, evidence rules, model lifecycle, and implementation contract.
 
-This section records only completed work. The final acceleration narrative, demo claims, contribution summary, and `/feedback` Session ID remain pending until most core functionality is built. The Session ID will be obtained by the user running `/feedback` in the primary implementation thread; no value is invented here.
+This section records only completed work. The owner-reviewed submission narrative is recorded in
+`devpost-submission.md`; the `/feedback` Session ID remains pending. The Session ID will be obtained
+only when the owner runs `/feedback` in the primary implementation thread and verifies it belongs to
+CodeScope; no value is invented here.
 
 ## License
 

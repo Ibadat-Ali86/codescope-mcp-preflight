@@ -27,6 +27,7 @@ _MAX_CANDIDATE_FILE_BYTES: Final = 2 * 1024 * 1024
 _MIN_TIMEOUT_SECONDS: Final = 30
 _MAX_TIMEOUT_SECONDS: Final = 900
 _SETUP_ACCEPTANCE_SECONDS: Final = 300
+_CANDIDATE_PATCH_ARGUMENTS: Final = ("diff", "--binary", "--no-ext-diff", "HEAD", "--")
 _EXPECTED_TOOLS: Final = (
     "search_code",
     "find_symbol",
@@ -111,6 +112,15 @@ class CommandRunner(Protocol):
         input_text: str | None = None,
     ) -> CommandResult: ...
 
+    def run_candidate_patch(
+        self,
+        command: Sequence[str],
+        *,
+        cwd: Path,
+        environment: Mapping[str, str],
+        timeout_seconds: int,
+    ) -> CommandResult: ...
+
 
 @dataclass(frozen=True, slots=True)
 class VerificationTiming:
@@ -166,6 +176,52 @@ class SubprocessRunner:
         input_text: str | None = None,
     ) -> CommandResult:
         """Run one command without a shell and translate failures safely."""
+        return self._run_with_output_limit(
+            command,
+            cwd=cwd,
+            environment=environment,
+            timeout_seconds=timeout_seconds,
+            input_text=input_text,
+            output_limit_bytes=_MAX_OUTPUT_BYTES,
+        )
+
+    def run_candidate_patch(
+        self,
+        command: Sequence[str],
+        *,
+        cwd: Path,
+        environment: Mapping[str, str],
+        timeout_seconds: int,
+    ) -> CommandResult:
+        """Capture only the bounded binary Git patch used for candidate materialization."""
+        if (
+            len(command) != len(_CANDIDATE_PATCH_ARGUMENTS) + 1
+            or tuple(command[1:]) != _CANDIDATE_PATCH_ARGUMENTS
+        ):
+            raise SetupVerificationError(
+                "CLEAN_SETUP_COMMAND_FAILED",
+                "The candidate patch command is invalid.",
+                "Restore the fixed candidate patch command and retry.",
+            )
+        return self._run_with_output_limit(
+            command,
+            cwd=cwd,
+            environment=environment,
+            timeout_seconds=timeout_seconds,
+            output_limit_bytes=_MAX_PATCH_BYTES,
+        )
+
+    def _run_with_output_limit(
+        self,
+        command: Sequence[str],
+        *,
+        cwd: Path,
+        environment: Mapping[str, str],
+        timeout_seconds: int,
+        output_limit_bytes: int,
+        input_text: str | None = None,
+    ) -> CommandResult:
+        """Run one fixed command with its authorized bounded output limit."""
         if not command or any(not isinstance(part, str) or not part for part in command):
             raise SetupVerificationError(
                 "CLEAN_SETUP_COMMAND_FAILED",
@@ -228,8 +284,8 @@ class SubprocessRunner:
                     "A clean-setup command exceeded its bounded timeout.",
                     "Inspect the documented prerequisite and retry with a bounded timeout.",
                 )
-            stdout = _read_bounded_output(stdout_file)
-            stderr = _read_bounded_output(stderr_file)
+            stdout = _read_bounded_output(stdout_file, maximum_bytes=output_limit_bytes)
+            stderr = _read_bounded_output(stderr_file, maximum_bytes=output_limit_bytes)
             return CommandResult(
                 returncode=process.returncode,
                 stdout=stdout,
@@ -268,10 +324,11 @@ def _terminate_surviving_group(process: subprocess.Popen[str]) -> None:
     _terminate_process_tree(process)
 
 
-def _read_bounded_output(stream: BinaryIO) -> str:
+def _read_bounded_output(stream: BinaryIO, *, maximum_bytes: int = _MAX_OUTPUT_BYTES) -> str:
+    """Read UTF-8 child output without exceeding the authorized capture limit."""
     stream.seek(0, os.SEEK_END)
     size = stream.tell()
-    if not isinstance(size, int) or size > _MAX_OUTPUT_BYTES:
+    if not isinstance(size, int) or size > maximum_bytes:
         raise SetupVerificationError(
             "CLEAN_SETUP_OUTPUT_FAILED",
             "A clean-setup command produced excessive output.",
@@ -493,6 +550,26 @@ def _git_text(
     ).stdout
 
 
+def _candidate_patch_text(
+    runner: CommandRunner,
+    git: Path,
+    *,
+    cwd: Path,
+    environment: Mapping[str, str],
+    timeout_seconds: int,
+) -> str:
+    """Capture the only binary Git diff authorized to use the patch output limit."""
+    return _require_success(
+        runner.run_candidate_patch(
+            [str(git), *_CANDIDATE_PATCH_ARGUMENTS],
+            cwd=cwd,
+            environment=environment,
+            timeout_seconds=timeout_seconds,
+        ),
+        label="candidate patch",
+    ).stdout
+
+
 def _untracked_paths(
     runner: CommandRunner,
     git: Path,
@@ -568,14 +645,12 @@ def _capture_source_snapshot(
         timeout_seconds=timeout_seconds,
         label="source status",
     )
-    tracked_diff = _git_text(
+    tracked_diff = _candidate_patch_text(
         runner,
         git,
-        ["diff", "--binary", "--no-ext-diff", "HEAD", "--"],
         cwd=source_root,
         environment=environment,
         timeout_seconds=timeout_seconds,
-        label="candidate patch",
     )
     if len(tracked_diff.encode("utf-8")) > _MAX_PATCH_BYTES:
         raise SetupVerificationError(
@@ -621,14 +696,12 @@ def _materialize_candidate(
         timeout_seconds=timeout_seconds,
         label="source revision",
     ).strip()
-    patch = _git_text(
+    patch = _candidate_patch_text(
         runner,
         git,
-        ["diff", "--binary", "--no-ext-diff", "HEAD", "--"],
         cwd=source_root,
         environment=environment,
         timeout_seconds=timeout_seconds,
-        label="candidate patch",
     )
     if len(patch.encode("utf-8")) > _MAX_PATCH_BYTES:
         raise SetupVerificationError(

@@ -9,7 +9,7 @@ from pathlib import PurePosixPath, PureWindowsPath
 from typing import Final, Literal
 
 import tree_sitter_python
-from tree_sitter import Language, Node, Parser
+from tree_sitter import Language, Node, Parser, Tree
 
 from codescope.exceptions import ParseFailedError
 from codescope.models import Symbol
@@ -50,8 +50,12 @@ def _validate_file_name(file: str) -> None:
 def _decode_identifier(node: Node, source: bytes) -> str | None:
     if node.type != "identifier" or node.is_error or node.is_missing:
         return None
+    start_byte = node.start_byte
+    end_byte = node.end_byte
+    if start_byte < 0 or end_byte < start_byte or end_byte > len(source):
+        return None
     try:
-        value = source[node.start_byte : node.end_byte].decode("utf-8")
+        value = source[start_byte:end_byte].decode("utf-8")
     except UnicodeDecodeError:
         return None
     return value if value else None
@@ -229,20 +233,20 @@ class CodeParser:
         if not source:
             return []
         try:
-            root = self._parser.parse(source).root_node
+            tree = self._parser.parse(source)
         except (RuntimeError, SystemError, TypeError, ValueError) as error:
             raise ParseFailedError(_SAFE_PARSE_MESSAGE) from error
-        return self._extract_module_symbols(root, source, file, normalized_language)
+        return self._extract_module_symbols(tree, source, file, normalized_language)
 
     def _extract_module_symbols(
         self,
-        root: Node,
+        tree: Tree,
         source: bytes,
         file: str,
         language: SupportedLanguage,
     ) -> list[Symbol]:
         symbols: list[Symbol] = []
-        for node in root.named_children:
+        for node in tree.root_node.named_children:
             unwrapped = _unwrap_definition(node)
             if unwrapped is None:
                 continue
@@ -265,6 +269,7 @@ class CodeParser:
                 )
                 if symbol is not None:
                     symbols.append(symbol)
+        del tree
         return symbols
 
     def _extract_direct_methods(

@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">CodeScope local-first architecture</title>
+  <desc id="desc">Repository source moves through secure discovery, Tree-sitter parsing, symbol-aware chunking, a local sentence transformer, local Chroma storage, QueryEngine, CLI and four read-only MCP tools, the CodeScope preflight skill, and a REUSE, EXTEND, or CREATE decision.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="0.55" stop-color="#0b1830"/>
+      <stop offset="1" stop-color="#111a35"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#152846"/>
+      <stop offset="1" stop-color="#101d35"/>
+    </linearGradient>
+    <linearGradient id="decision" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#35d4ff"/>
+      <stop offset="0.5" stop-color="#72f0c2"/>
+      <stop offset="1" stop-color="#b6ff7a"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000814" flood-opacity="0.45"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64dfff"/>
+    </marker>
+    <style>
+      .title { font-family: "DejaVu Sans", sans-serif; font-size: 42px; font-weight: 700; fill: #f4f8ff; }
+      .subtitle { font-family: "DejaVu Sans", sans-serif; font-size: 20px; font-weight: 400; fill: #a9bddb; }
+      .boundary { fill: none; stroke: #38577e; stroke-width: 2; stroke-dasharray: 9 8; }
+      .boundary-label { font-family: "DejaVu Sans", sans-serif; font-size: 15px; font-weight: 600; fill: #8facd1; letter-spacing: 0.06em; }
+      .box { fill: url(#card); stroke: #31547c; stroke-width: 2; rx: 18; filter: url(#shadow); }
+      .box-accent { fill: #132f4a; stroke: #57defb; stroke-width: 2; rx: 18; filter: url(#shadow); }
+      .box-title { font-family: "DejaVu Sans", sans-serif; font-size: 19px; font-weight: 700; fill: #f7fbff; text-anchor: middle; }
+      .box-copy { font-family: "DejaVu Sans", sans-serif; font-size: 14px; font-weight: 400; fill: #a9bddb; text-anchor: middle; }
+      .arrow { fill: none; stroke: #64dfff; stroke-width: 3; marker-end: url(#arrow); }
+      .small-arrow { fill: none; stroke: #72f0c2; stroke-width: 2.5; marker-end: url(#arrow); }
+      .pill { fill: #0b2239; stroke: #3f6f91; stroke-width: 1.5; rx: 16; }
+      .pill-copy { font-family: "DejaVu Sans", sans-serif; font-size: 14px; font-weight: 600; fill: #b8cce7; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#background)"/>
+  <circle cx="1450" cy="60" r="260" fill="#214d78" opacity="0.12"/>
+  <circle cx="100" cy="850" r="280" fill="#26535a" opacity="0.1"/>
+
+  <text x="70" y="76" class="title">CodeScope architecture</text>
+  <text x="70" y="112" class="subtitle">Local-first repository understanding before code generation</text>
+
+  <rect x="38" y="190" width="230" height="310" rx="28" class="boundary"/>
+  <text x="58" y="218" class="boundary-label">REPOSITORY TRUST BOUNDARY</text>
+
+  <rect x="292" y="176" width="988" height="546" rx="30" class="boundary"/>
+  <text x="314" y="204" class="boundary-label">LOCAL CODESCOPE RUNTIME · SOURCE STAYS ON DEVICE</text>
+
+  <rect x="1310" y="485" width="252" height="334" rx="28" class="boundary"/>
+  <text x="1330" y="513" class="boundary-label">CODING-AGENT BOUNDARY</text>
+
+  <rect x="70" y="278" width="170" height="126" class="box-accent"/>
+  <text x="155" y="322" class="box-title">Repository</text>
+  <text x="155" y="350" class="box-copy">Python .py / .pyi</text>
+  <text x="155" y="372" class="box-copy">untrusted source</text>
+
+  <rect x="322" y="260" width="190" height="142" class="box"/>
+  <text x="417" y="302" class="box-title">Secure discovery</text>
+  <text x="417" y="330" class="box-copy">path guards · ignores</text>
+  <text x="417" y="352" class="box-copy">bounded safe reads</text>
+  <text x="417" y="374" class="box-copy">never executes source</text>
+
+  <rect x="550" y="260" width="170" height="142" class="box"/>
+  <text x="635" y="302" class="box-title">Tree-sitter</text>
+  <text x="635" y="330" class="box-copy">Python parser</text>
+  <text x="635" y="352" class="box-copy">symbols + lines</text>
+  <text x="635" y="374" class="box-copy">filesystem-free</text>
+
+  <rect x="758" y="260" width="190" height="142" class="box"/>
+  <text x="853" y="302" class="box-title">Symbol chunking</text>
+  <text x="853" y="330" class="box-copy">exact source text</text>
+  <text x="853" y="352" class="box-copy">model budget</text>
+  <text x="853" y="374" class="box-copy">stable SHA-256 IDs</text>
+
+  <rect x="986" y="260" width="210" height="142" class="box"/>
+  <text x="1091" y="302" class="box-title">Local transformer</text>
+  <text x="1091" y="330" class="box-copy">cache-only model</text>
+  <text x="1091" y="352" class="box-copy">normalized vectors</text>
+  <text x="1091" y="374" class="box-copy">no cloud embedding API</text>
+
+  <rect x="954" y="58" width="274" height="94" class="box-accent"/>
+  <text x="1091" y="94" class="box-title">Prepared model cache</text>
+  <text x="1091" y="121" class="box-copy">external · explicit one-time download</text>
+
+  <path d="M240 341 H312" class="arrow"/>
+  <path d="M512 331 H540" class="arrow"/>
+  <path d="M720 331 H748" class="arrow"/>
+  <path d="M948 331 H976" class="arrow"/>
+  <path d="M1091 152 V250" class="small-arrow"/>
+
+  <rect x="986" y="514" width="210" height="142" class="box"/>
+  <text x="1091" y="556" class="box-title">Local Chroma</text>
+  <text x="1091" y="584" class="box-copy">vectors + source chunks</text>
+  <text x="1091" y="606" class="box-copy">atomic JSON metadata</text>
+  <text x="1091" y="628" class="box-copy">telemetry disabled</text>
+
+  <rect x="758" y="514" width="190" height="142" class="box"/>
+  <text x="853" y="556" class="box-title">QueryEngine</text>
+  <text x="853" y="584" class="box-copy">semantic + symbol</text>
+  <text x="853" y="606" class="box-copy">similar-code evidence</text>
+  <text x="853" y="628" class="box-copy">bounded deterministic results</text>
+
+  <rect x="490" y="514" width="230" height="142" class="box-accent"/>
+  <text x="605" y="552" class="box-title">CLI + local MCP</text>
+  <text x="605" y="580" class="box-copy">six CLI commands</text>
+  <text x="605" y="602" class="box-copy">four read-only tools</text>
+  <text x="605" y="624" class="box-copy">stdio · protocol-only stdout</text>
+
+  <path d="M1091 402 V504" class="arrow"/>
+  <path d="M976 585 H958" class="arrow"/>
+  <path d="M758 585 H730" class="arrow"/>
+
+  <rect x="1317" y="548" width="238" height="118" class="box"/>
+  <text x="1436" y="588" class="box-title">$codescope-preflight</text>
+  <text x="1436" y="616" class="box-copy">inventory + evidence</text>
+  <text x="1436" y="638" class="box-copy">retrieved source is untrusted</text>
+
+  <path d="M720 585 V690 H1297 V607" class="arrow"/>
+  <rect x="974" y="672" width="176" height="30" class="pill"/>
+  <text x="1062" y="693" class="pill-copy">MCP stdio boundary</text>
+
+  <rect x="1317" y="704" width="238" height="92" rx="20" fill="url(#decision)" filter="url(#shadow)"/>
+  <text x="1436" y="744" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="700" fill="#062035" text-anchor="middle">REUSE · EXTEND · CREATE</text>
+  <text x="1436" y="770" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="600" fill="#17405a" text-anchor="middle">agent-owned decision</text>
+  <path d="M1436 666 V694" class="arrow"/>
+
+  <rect x="318" y="755" width="238" height="42" class="pill"/>
+  <text x="437" y="781" class="pill-copy">No source execution</text>
+  <rect x="572" y="755" width="238" height="42" class="pill"/>
+  <text x="691" y="781" class="pill-copy">No cloud source upload</text>
+  <rect x="826" y="755" width="290" height="42" class="pill"/>
+  <text x="971" y="781" class="pill-copy">Similarity is evidence, not proof</text>
+
+  <text x="70" y="858" class="subtitle">Secure discovery → local evidence → explicit preflight decision</text>
+</svg>

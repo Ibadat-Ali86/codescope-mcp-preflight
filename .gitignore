@@ -11,6 +11,8 @@ env/
 
 # CodeScope runtime
 .codescope/
+.codescope.build-*/
+.codescope.backup-*/
 
 # Testing and quality
 .pytest_cache/
@@ -46,3 +48,7 @@ Thumbs.db
 .cache/
 models/
 graphify-out/cache/
+*.safetensors
+*.onnx
+*.pt
+*.pth

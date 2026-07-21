@@ -793,3 +793,208 @@ Phase 10 security review:
 
 Phase 10 passed its owner review and final clean audit. Phase 11 was not started, Graphify was not
 regenerated, `/feedback` was not run, and no release tag was created.
+
+### Phase 11 — Final submission packaging and evidence closure
+
+Work in progress on July 19, 2026, from synchronized `main` commit
+`39f85be6f5e876a82d52f487505952b0a9f4ff3b`:
+
+- Re-verified the live OpenAI Build Week Devpost overview, rules, announcements, dates, form
+  fields, judging criteria, prizes, authenticated registration, and existing-project inventory.
+  Pakistan is present in the reviewed official eligible-country list; the corrected deadline is
+  Tuesday, July 21, 2026 at 5:00 PM Pacific Time, equivalent to July 22 at 5:00 AM Pakistan time.
+- Recorded the owner's July 19 confirmation of Pakistan residence, age-of-majority eligibility,
+  no exclusion or conflict, original work and compliant third-party use, rules/terms agreement,
+  Individual submitter type, and solo-team status. No legal conclusion is inferred.
+- Added an original CodeScope cover and architecture diagram plus four privacy-safe screenshots
+  based on observed CLI, real MCP stdio discovery, and deterministic demo output. The temporary
+  fixture, runtime, browser page, browser metadata, and capture server were removed.
+- Added the owner-review submission draft, three judge-testing routes, video script, screenshot
+  provenance/privacy record, and final release/submission checklist. The draft is explicitly not
+  submitted and records the remaining external-write gates; its narrative-personalization markers
+  were subsequently replaced with the owner's supplied wording.
+- Refined the README into a judge landing page with the verified small-fixture result, problem,
+  solution, differentiators, architecture, workflow, measured evidence, and direct judge path.
+- Updated the living compliance and Codex handoff records without marking the release, video,
+  `/feedback`, Devpost project, or submission complete.
+- Received the owner's first-person submission narrative and exact owner-voice confirmation. Applied
+  the supplied motivation, personal relevance, Codex/GPT-5.6 account, accomplishment, lesson,
+  closing, and tagline to `devpost-submission.md`; no wording was invented or attributed to the
+  owner without confirmation.
+
+Phase 11 files currently added:
+
+- `assets/submission/architecture.svg`
+- `assets/submission/architecture.png`
+- `assets/submission/cover.png`
+- `assets/submission/screenshot-cli.png`
+- `assets/submission/screenshot-mcp.png`
+- `assets/submission/screenshot-preflight.png`
+- `assets/submission/screenshot-demo-result.png`
+- `devpost-submission.md`
+- `docs/JUDGE_TESTING.md`
+- `docs/VIDEO_SCRIPT.md`
+- `docs/SCREENSHOT_PLAN.md`
+- `docs/FINAL_RELEASE_CHECKLIST.md`
+
+Phase 11 files currently modified:
+
+- `README.md`
+- `BUILD_WEEK_CHANGELOG.md`
+- `docs/.CHAT_MEMORY.md`
+- `docs/HACKATHON_COMPLIANCE.md`
+- `docs/CODEX_HANDOFF.md`
+
+Observed Phase 11 candidate validation so far:
+
+- Unit suite — 485 passed with 119 installed-Chroma deprecation warnings in 10.93 seconds.
+- Ordinary integration suite — 4 passed, 5 explicit real-model tests skipped, and 38 warnings in
+  4.76 seconds.
+- Security suite — 101 passed, 1 operating-system junction test skipped, and 116 warnings in 7.28
+  seconds.
+- Ordinary e2e suite — 27 passed and 1 explicit real-model test skipped in 3.17 seconds.
+- Release suite — 24 passed and 1 explicit clean-candidate test skipped in 6.67 seconds.
+- Explicit offline/cache-only integration plus e2e matrix — 37 passed with 91 warnings in 20.66
+  seconds.
+- Combined production coverage — 641 passed, 8 explicit/platform skips, and 273 warnings; 91%
+  across 2,833 statements with 245 missed in 27.71 seconds.
+- Ruff passed; formatting reported 53 files already formatted; strict mypy passed for 18 source
+  files and 3 release scripts; `uv lock --check` resolved the unchanged 142-package lock; CLI
+  version remained `CodeScope 0.1.0`.
+- Both human and JSON real cache-only demos passed. Each reported 4 files, 11 symbols, 16 chunks,
+  `validate_email` at `validators.py:6-9`, REUSE, unchanged source, and duplicate avoided.
+- All six PNGs are 1600×900, contain no text/EXIF metadata or trailing data, and the architecture
+  SVG is well-formed. Local Markdown target validation checked 40 links with no missing target.
+- Placeholder, private-path, secret-pattern, prohibited-file, and dependency/production-code diff
+  checks found no new Phase 11 leak or executable scope change. One private-path grep match remains
+  in the unchanged historical v2 design document and is not part of the Phase 11 patch.
+
+Current Phase 11 gates and blockers:
+
+- The Codex Security capability preflight returned `ready`. Delegated full-file review covered the
+  submission docs and architecture assets; direct review covered all raster assets plus the two
+  subsequently changed evidence ledgers. One judge-route checksum/control candidate was reproduced
+  and fixed in the working tree. The plugin's canonical finalization was unavailable after an
+  account-handoff environment removed its cache, so no completed plugin report is claimed.
+- Manual post-fix review found no unresolved validated high- or critical-severity issue. The
+  remaining model/dependency acquisition trust boundary is an explicitly authorized external
+  prerequisite already documented in the Phase 10 threat model.
+- The owner has supplied the marked narrative sections, approved the draft tagline, and confirmed
+  that the description reflects their own words and experience. Final owner review and staging
+  authorization remain separate gates.
+- Creating or updating a Devpost project, committing, tagging, pushing, publishing a GitHub
+  Release, uploading/finalizing media, and submitting remain separate explicit owner gates.
+- The public YouTube URL, `/feedback` Session ID, final release URL/checksums, signed-out public
+  repository verification, and live Submitted readback do not exist yet and are not invented.
+- The clean-candidate verifier will run after owner review and staging because its exact Phase 10
+  untracked-file allowlist intentionally rejects new Phase 11 assets before they enter the staged
+  candidate patch. The verifier itself and its security boundary remain unchanged.
+
+Post-fix rerun after hardening the judge checksum/source-execution instructions:
+
+- Unit — 485 passed with 119 warnings in 11.56 seconds.
+- Ordinary integration — 4 passed, 5 explicit model skips, 38 warnings in 5.31 seconds.
+- Security — 101 passed, 1 operating-system junction skip, 116 warnings in 7.86 seconds.
+- Ordinary e2e — 27 passed, 1 explicit model skip in 4.42 seconds.
+- Release — 24 passed, 1 explicit clean-candidate skip in 7.28 seconds.
+- Offline/cache-only integration plus e2e — 37 passed, 91 warnings in 25.59 seconds.
+- Combined production coverage — 641 passed, 8 explicit/platform skips, 273 warnings; 91%
+  (2,833 statements, 245 missed) in 30.38 seconds.
+- Ruff, formatting, strict source/script mypy, lock check, CLI version, link checks, XML validation,
+  diff checks, privacy scans, and prohibited-artifact scans passed again.
+
+Staged-candidate audit on July 19, 2026:
+
+- Staged exactly 18 Phase 11 evidence files: five modified evidence documents, six new submission
+  documents, and seven original submission assets. No dependency, production-code, Graphify,
+  runtime, model cache, Chroma, coverage, temporary, or build file was staged.
+- Aggregate ordinary unit, integration, security, e2e, and release tests passed: 641 passed, 8
+  explicit/platform skips, 273 warnings, 23.30 seconds. The explicit offline cache-only
+  integration/e2e matrix passed 37 tests with 91 warnings in 23.49 seconds. The dedicated security
+  suite passed 101 tests with one operating-system junction skip and 116 warnings in 6.05 seconds.
+- Ruff, formatting, strict source and release-script mypy, `uv lock --check`, CLI version, staged
+  whitespace/scope/privacy checks, SVG validation, PNG structural-chunk audit, and a temporary
+  wheel/sdist build plus MIT-license audit passed.
+- The initial real clean-candidate verifier attempt stopped before candidate-patch application. At
+  that attempted run, the binary-inclusive patch was 2,839,881 bytes: below the verifier's 16 MiB
+  candidate-patch ceiling but above its generic 2 MiB subprocess-output cap.
+- The owner authorized a narrow release-tool correction. `SubprocessRunner.run()` retains the generic
+  2 MiB cap; only the hard-coded `git diff --binary --no-ext-diff HEAD --` candidate-patch capture
+  now uses the existing 16 MiB patch cap and rejects every other command. Focused regression coverage
+  passed 13 tests with one explicit opt-in skip in 5.95 seconds, including real Git binary patches
+  above 2 MiB/below 16 MiB, above 16 MiB, ordinary output above 2 MiB, non-candidate commands, and
+  existing small-candidate materialization.
+- The real clean-candidate verifier then passed. It applied the staged patch to an isolated clone,
+  passed locked sync, CLI, fixture index/status/search, MCP tool listing, the REUSE demo, reset, and
+  source-immutability checks; clone/runtime cleanup completed. Observed timings were 510.832 ms clone,
+  415.021 ms dependency sync, 54,459.702 ms setup-to-demo, and 57,177.122 ms total.
+
+## July 22, 2026 — Parser native-stability remediation (uncommitted)
+
+A final-release parser defect was reproduced while parsing `src/codescope/chunker.py` with the
+previous resolved `tree-sitter` 0.26.0 together with `tree-sitter-python` 0.25.0. The native
+binding produced corrupted node line metadata and then terminated the interpreter.
+
+- Pinned `tree-sitter` to `0.25.2`, matching the installed `tree-sitter-python` 0.25.0 grammar
+  release, and regenerated only the corresponding lockfile entries.
+- Retained the parsed Tree through symbol traversal and added defensive identifier byte-range
+  validation without changing extracted symbol semantics.
+- Added parser coverage for direct, decorated, class, static, and async methods; repeated parser
+  reuse; every `src/codescope` Python module; existing fixture files; invalid identifier ranges; and
+  candidate-index preservation after an injected parser-boundary failure.
+- `uv sync --locked` installed `tree-sitter` 0.25.2 and `tree-sitter-python` 0.25.0.
+- Focused parser tests passed: 44 passed.
+- Candidate-index rollback regression passed: 1 passed, 27 deselected (seven installed-Chroma
+  deprecation warnings).
+- Aggregate unit, integration, security, e2e, and release suites passed: 492 passed; 4 passed and
+  5 explicit model skips; 102 passed and one operating-system junction skip; 27 passed and one
+  explicit model skip; and 28 passed with one explicit clean-candidate skip.
+- Explicit cache-only offline integration and e2e validation passed: 37 passed with 91
+  installed-Chroma deprecation warnings.
+- Ruff, formatting, strict source/script mypy, lock validation, CLI version, and `git diff --check`
+  passed.
+- The clean-candidate verifier passed with tracked-patch application, all four MCP tools, REUSE,
+  unchanged source, and clone/runtime cleanup. Timings: 491.227 ms clone, 314.736 ms dependency
+  sync, 47,584.966 ms setup-to-demo, and 49,774.695 ms total.
+- No commit, push, tag, release, Devpost change, video upload, or `/feedback` action occurred.
+- The attempted local `codex review --uncommitted` did not produce findings and was stopped with
+  only its spawned read-only stdio children after it remained stuck; it is not recorded as a
+  completed review.
+
+## July 22, 2026 — supplied-video and demo-alignment audit (uncommitted)
+
+- Verified the owner-supplied public YouTube link in a real signed-out browser. The page loaded
+  without sign-in and displayed the title `CODEX HACKATHON CODESCOPE PLUGIN short interview` and a
+  duration of 5:47.
+- The duration exceeds the required sub-three-minute limit. The recording is not a final submission
+  asset and must not be added to Devpost. Closed captions were unavailable, so required narration
+  coverage was not verified.
+- The recording references a routing-ownership comparison, but searches found no committed
+  `RoutingPolicy`, `ResponseSla`, multi-route broadcaster, keyword router, or eight-test fixture.
+  The reproducible repository and judge route remain the email-validation REUSE demo.
+- Updated release and submission evidence to distinguish the two demos and record the replacement
+  requirement. No commit, push, video upload, Devpost update, `/feedback`, or release action
+  occurred.
+- A full-patch clean-candidate verifier applied the tracked patch and passed locked setup,
+  CLI, fixture index/status/search, four MCP tools, REUSE demo, reset, source equality, and cleanup.
+  Observed timings: 516.993 ms clone, 415.546 ms dependency sync, 60,855.219 ms setup to demo, and
+  63,586.124 ms total.
+
+Final local rerun before owner-controlled release actions:
+
+- At `2026-07-22T01:01:40+05:00`, live Devpost data still reported OpenAI Build Week as
+  `submissions_open`, with the official deadline unchanged at `2026-07-22T00:00:00Z` (05:00 PKT).
+  The account remained registered, no CodeScope project existed, and the form fields, Developer
+  Tools category, four judging criteria, and Pakistan eligibility still matched the draft.
+- Combined ordinary production coverage passed 653 tests with 8 documented explicit/platform
+  skips and 280 installed-dependency warnings; coverage remained 91% (2,838 statements, 245
+  missed) in 32.53 seconds.
+- Human and JSON offline demos again reported 4 files, 11 symbols, 16 chunks,
+  `validators.py:6-9`, `validate_email`, REUSE, unchanged source, and duplicate avoided.
+- A temporary wheel/sdist audit passed: the wheel contained the project MIT license and
+  `License-Expression: MIT`; the sdist contained the license; and wheel metadata preserved the
+  exact Tree-sitter compatibility pins. No package artifact was written inside the repository.
+- The final staged-scope/privacy/artifact audit still found 20 staged Phase 11/release-verifier
+  files, zero prohibited staged artifacts, zero private-path or secret-pattern matches, 37 valid
+  local Markdown links, a safe well-formed architecture SVG, and six metadata-free 1600x900 PNGs
+  with no trailing data.

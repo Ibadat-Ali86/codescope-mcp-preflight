@@ -12,6 +12,8 @@ from codescope.models import Symbol
 from codescope.parser import CodeParser
 
 FIXTURE_ROOT = Path(__file__).parents[1] / "fixtures" / "sample_python"
+REPOSITORY_ROOT = Path(__file__).parents[2]
+SOURCE_ROOT = REPOSITORY_ROOT / "src" / "codescope"
 
 
 def _parse_fixture(name: str) -> list[Symbol]:
@@ -40,6 +42,28 @@ def test_parser_empty_source_returns_empty_symbols() -> None:
 
     # Assert
     assert result == []
+
+
+@pytest.mark.parametrize(("start_byte", "end_byte"), [(-1, 1), (2, 1), (0, 99)])
+def test_parser_rejects_invalid_identifier_byte_ranges(
+    start_byte: int,
+    end_byte: int,
+) -> None:
+    # Arrange
+    class InvalidIdentifier:
+        type = "identifier"
+        is_error = False
+        is_missing = False
+
+    node = InvalidIdentifier()
+    node.start_byte = start_byte
+    node.end_byte = end_byte
+
+    # Act
+    result = parser_module._decode_identifier(cast(Any, node), b"valid")
+
+    # Assert
+    assert result is None
 
 
 def test_parser_normalizes_python_language() -> None:
@@ -89,6 +113,116 @@ def test_parser_results_are_deterministic_across_repeated_parses() -> None:
 
     # Assert
     assert first == second
+
+
+def test_parser_retains_tree_while_extracting_direct_decorated_class_methods() -> None:
+    # Arrange
+    parser = CodeParser()
+    source = b"""class Service:
+    def direct(self) -> None:
+        pass
+
+    @decorator
+    def decorated(self) -> None:
+        pass
+
+    @classmethod
+    def class_method(cls) -> None:
+        pass
+
+    @staticmethod
+    def static_method() -> None:
+        pass
+
+    async def async_method(self) -> None:
+        pass
+"""
+
+    # Act
+    symbols = parser.parse(source, file="service.py")
+
+    # Assert
+    assert [(symbol.name, symbol.kind, symbol.qualified_name) for symbol in symbols] == [
+        ("Service", "class", "Service"),
+        ("direct", "method", "Service.direct"),
+        ("decorated", "method", "Service.decorated"),
+        ("class_method", "method", "Service.class_method"),
+        ("static_method", "method", "Service.static_method"),
+        ("async_method", "method", "Service.async_method"),
+    ]
+    assert _symbol(symbols, "decorated").start_line == 5
+    assert _symbol(symbols, "class_method").start_line == 9
+    assert _symbol(symbols, "static_method").start_line == 13
+
+
+def test_parser_repeatedly_extracts_class_methods_with_one_parser_instance() -> None:
+    # Arrange
+    parser = CodeParser()
+    source = b"""class Service:
+    @classmethod
+    def build(cls) -> "Service":
+        return cls()
+
+    async def refresh(self) -> None:
+        pass
+"""
+
+    # Act
+    results = [parser.parse(source, file="service.py") for _ in range(50)]
+
+    # Assert
+    assert all(result == results[0] for result in results)
+    assert [symbol.qualified_name for symbol in results[0]] == [
+        "Service",
+        "Service.build",
+        "Service.refresh",
+    ]
+
+
+def test_parser_parses_every_codescope_python_module() -> None:
+    # Arrange
+    parser = CodeParser()
+    source_paths = sorted(SOURCE_ROOT.rglob("*.py"))
+
+    # Act
+    parsed = [
+        parser.parse(
+            source_path.read_bytes(),
+            file=source_path.relative_to(REPOSITORY_ROOT).as_posix(),
+        )
+        for source_path in source_paths
+    ]
+
+    # Assert
+    assert source_paths
+    assert len(parsed) == len(source_paths)
+    assert all(symbol.file.startswith("src/codescope/") for symbols in parsed for symbol in symbols)
+
+
+def test_parser_reuses_one_instance_for_existing_fixture_files() -> None:
+    # Arrange
+    parser = CodeParser()
+    fixture_names = ("auth.py", "services.py")
+
+    # Act
+    parsed = {
+        name: parser.parse((FIXTURE_ROOT / name).read_bytes(), file=f"fixtures/{name}")
+        for name in fixture_names
+    }
+
+    # Assert
+    assert [symbol.qualified_name for symbol in parsed["auth.py"]] == [
+        "authenticate",
+        "AuthService",
+        "AuthService.__init__",
+        "AuthService.validate_token",
+    ]
+    assert [symbol.qualified_name for symbol in parsed["services.py"]] == [
+        "UserService",
+        "UserService.display_name",
+        "UserService.load",
+        "outer",
+    ]
 
 
 def test_parser_extracts_top_level_sync_and_async_functions() -> None:

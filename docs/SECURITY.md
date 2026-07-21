@@ -98,7 +98,7 @@ License identifiers below are factual metadata, not legal advice.
 | Pydantic 2.13.4 | Immutable validation models | MIT license expression in installed metadata |
 | Rich 15.0.0 | Safe human CLI rendering | MIT license expression in installed metadata |
 | Sentence Transformers 5.6.0 | Local embedding lifecycle | Apache-2.0 license expression in installed metadata |
-| Tree-sitter 0.26.0 | Parser runtime | MIT license file in installed wheel and [upstream](https://github.com/tree-sitter/tree-sitter) |
+| Tree-sitter 0.25.2 | Parser runtime | License file in the installed distribution; no license field is declared in its installed metadata; see [upstream](https://github.com/tree-sitter/tree-sitter) |
 | Tree-sitter Python 0.25.0 | Python grammar | MIT license file in installed wheel and [grammar repository](https://github.com/tree-sitter/tree-sitter-python) |
 | Typer 0.26.8 | CLI command surface | MIT license expression in installed metadata |
 | all-MiniLM-L6-v2 | Default embedding model | Apache-2.0 on the [official model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) |
@@ -106,7 +106,8 @@ License identifiers below are factual metadata, not legal advice.
 Notable transitive runtime components include PyTorch (compound SPDX expression recorded in the
 installed metadata), Transformers (Apache 2.0 metadata), Tokenizers (Apache classifier), and
 Hugging Face Hub (Apache-2.0 metadata). `uv tree` is the authoritative installed dependency-tree
-evidence for this candidate. No dependency or locked version was changed in Phase 10.
+evidence for this candidate. No dependency or locked version changed in Phase 10; the current
+uncommitted parser remediation pins Tree-sitter 0.25.2 for grammar compatibility.
 
 ## Reporting and operational guidance
 

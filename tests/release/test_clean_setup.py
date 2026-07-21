@@ -121,7 +121,7 @@ def test_untracked_allowlist_is_exact_and_rejects_unsafe_or_unexpected_values() 
             verifier._validate_untracked_paths([invalid])
 
 
-def test_materialize_candidate_applies_patch_copies_allowlisted_and_preserves_source(
+def test_small_candidate_patch_is_materialized_copies_allowlisted_and_preserves_source(
     tmp_path: Path,
 ) -> None:
     # Arrange
@@ -142,6 +142,7 @@ def test_materialize_candidate_applies_patch_copies_allowlisted_and_preserves_so
     git_path = Path(shutil_which_or_fail("git"))
     environment = _test_environment(tmp_path)
     clone = tmp_path / "clone"
+    patch = _git(source, "diff", "--binary", "--no-ext-diff", "HEAD", "--")
 
     # Act
     _head, copied = verifier._materialize_candidate(
@@ -154,10 +155,80 @@ def test_materialize_candidate_applies_patch_copies_allowlisted_and_preserves_so
     )
 
     # Assert
+    assert len(patch.encode("utf-8")) <= verifier._MAX_OUTPUT_BYTES
     assert copied == 1
     assert (clone / "README.md").read_text(encoding="utf-8") == "after\n"
     assert (clone / "scripts" / "benchmark.py").read_text(encoding="utf-8") == "VALUE = 1\n"
     assert _git(source, "status", "--porcelain=v1") == status_before
+
+
+def _staged_binary_candidate(tmp_path: Path, *, payload_size: int) -> tuple[Path, bytes]:
+    """Create a repository with one staged binary candidate file."""
+    source = tmp_path / "source"
+    source.mkdir()
+    _git(source, "init", "-b", "main")
+    _git(source, "config", "user.name", "CodeScope Test")
+    _git(source, "config", "user.email", "codescope@example.invalid")
+    (source / "README.md").write_text("baseline\n", encoding="utf-8")
+    _git(source, "add", "README.md")
+    _git(source, "commit", "-m", "test baseline")
+    payload = os.urandom(payload_size)
+    (source / "candidate.bin").write_bytes(payload)
+    _git(source, "add", "candidate.bin")
+    return source, payload
+
+
+def test_binary_candidate_above_generic_cap_below_patch_cap_is_materialized(
+    tmp_path: Path,
+) -> None:
+    # Arrange
+    source, payload = _staged_binary_candidate(
+        tmp_path,
+        payload_size=2 * 1024 * 1024,
+    )
+    patch = _git(source, "diff", "--binary", "--no-ext-diff", "HEAD", "--")
+    clone = tmp_path / "clone"
+
+    # Act
+    _head, copied = verifier._materialize_candidate(
+        verifier.SubprocessRunner(),
+        Path(shutil_which_or_fail("git")),
+        source_root=source,
+        clone_root=clone,
+        environment=_test_environment(tmp_path),
+        timeout_seconds=30,
+    )
+
+    # Assert
+    assert verifier._MAX_OUTPUT_BYTES < len(patch.encode("utf-8")) <= verifier._MAX_PATCH_BYTES
+    assert copied == 0
+    assert (clone / "candidate.bin").read_bytes() == payload
+
+
+def test_binary_candidate_above_patch_cap_is_rejected_before_clone(tmp_path: Path) -> None:
+    # Arrange
+    source, _payload = _staged_binary_candidate(
+        tmp_path,
+        payload_size=verifier._MAX_PATCH_BYTES,
+    )
+    patch = _git(source, "diff", "--binary", "--no-ext-diff", "HEAD", "--")
+    clone = tmp_path / "clone"
+
+    # Act
+    with pytest.raises(verifier.SetupVerificationError) as raised:
+        verifier._materialize_candidate(
+            verifier.SubprocessRunner(),
+            Path(shutil_which_or_fail("git")),
+            source_root=source,
+            clone_root=clone,
+            environment=_test_environment(tmp_path),
+            timeout_seconds=30,
+        )
+
+    # Assert
+    assert len(patch.encode("utf-8")) > verifier._MAX_PATCH_BYTES
+    assert raised.value.code == "CLEAN_SETUP_OUTPUT_FAILED"
+    assert not clone.exists()
 
 
 def shutil_which_or_fail(name: str) -> str:
@@ -264,6 +335,44 @@ def test_subprocess_output_is_bounded_and_utf8(tmp_path: Path) -> None:
     assert result.stdout == "safe output\n"
     assert result.stderr == ""
     assert result.duration_ns >= 0
+
+
+def test_ordinary_subprocess_output_above_generic_cap_is_rejected(tmp_path: Path) -> None:
+    # Arrange
+    command = [
+        sys.executable,
+        "-c",
+        f"import sys; sys.stdout.write('x' * {verifier._MAX_OUTPUT_BYTES + 1})",
+    ]
+
+    # Act
+    with pytest.raises(verifier.SetupVerificationError) as raised:
+        verifier.SubprocessRunner().run(
+            command,
+            cwd=tmp_path,
+            environment=_test_environment(tmp_path),
+            timeout_seconds=30,
+        )
+
+    # Assert
+    assert raised.value.code == "CLEAN_SETUP_OUTPUT_FAILED"
+
+
+def test_candidate_patch_capture_rejects_any_non_candidate_command(tmp_path: Path) -> None:
+    # Arrange
+    command = [sys.executable, "-c", "print('not a candidate patch')"]
+
+    # Act
+    with pytest.raises(verifier.SetupVerificationError) as raised:
+        verifier.SubprocessRunner().run_candidate_patch(
+            command,
+            cwd=tmp_path,
+            environment=_test_environment(tmp_path),
+            timeout_seconds=30,
+        )
+
+    # Assert
+    assert raised.value.code == "CLEAN_SETUP_COMMAND_FAILED"
 
 
 def test_report_json_and_human_output_are_path_private() -> None:
